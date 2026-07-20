@@ -1,0 +1,38 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "system": {
+    "beta": 2.6666666666666665,
+    "rho": 28.0,
+    "sigma": 10.0
+  },
+  "data": {
+    "dt": 0.01,
+    "max_forecast_lyapunov_times": 30.0,
+    "n_test": 128,
+    "n_train": 64,
+    "n_validation": 32,
+    "noise_levels": [0.0, 0.001, 0.01, 0.05],
+    "spinup_time": 100.0,
+    "train_time": 20.0,
+    "validation_lyapunov_times": 5.0,
+    "reference": {
+      "agreement_threshold": 1e-06,
+      "atol": 1e-14,
+      "crosscheck_method": "Radau",
+      "crosscheck_workers": 16,
+      "max_step": 0.001,
+      "method": "DOP853",
+      "rtol": 1e-12
+    },
+    "lyapunov": {
+      "burn_in": 20.0,
+      "duration": 200.0,
+      "qr_interval": 10,
+      "step": 0.001
+    }
+  },
+  "final": {
+    "data_seeds": [1, 2, 3, 4, 5],
+    "model_seeds": [0, 1, 2]
+  }
+}

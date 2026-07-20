@@ -1,0 +1,43 @@
+[project]
+name = "weighted-weak-sindy"
+version = "0.2.0"
+description = "Information-controlled Lorenz63 benchmark with strong, weak, and endpoint-weighted weak SINDy comparators."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "torch>=2.1",
+  "matplotlib>=3.7",
+  "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.urls]
+Repository = "https://github.com/shayshay42/weighted-weak-SINDy"
+
+[project.scripts]
+lorenz63-v2-data = "lorenz63_benchmark.v2.data:main"
+lorenz63-v2-tune = "lorenz63_benchmark.v2.tune:main"
+lorenz63-v2-train = "lorenz63_benchmark.v2.train:main"
+lorenz63-v2-evaluate = "lorenz63_benchmark.v2.evaluate:main"
+lorenz63-v2-aggregate = "lorenz63_benchmark.v2.aggregate:main"
+lorenz63-v2-worker = "lorenz63_benchmark.v2.worker:main"
+lorenz63-v2-prepare = "lorenz63_benchmark.v2.prepare:main"
+lorenz63-v2-smoke = "lorenz63_benchmark.v2.smoke:main"
+lorenz63-v2-validate = "lorenz63_benchmark.v2.validate:main"
+lorenz63-v2-merge-tuning = "lorenz63_benchmark.v2.merge_tuning:main"
+lorenz63-v2-prepare-tuning = "lorenz63_benchmark.v2.prepare_tuning:main"
+lorenz63-v2-attractor-summary = "lorenz63_benchmark.v2.attractor_summary:main"
+lorenz63-v2-visualize = "lorenz63_benchmark.v2.visualize:main"
+
+[tool.setuptools.packages.find]
+include = ["lorenz63_benchmark*"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,92 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "data": {
+    "dt": 0.02,
+    "spinup_time": 0.2,
+    "train_time": 0.4,
+    "validation_lyapunov_times": 0.5,
+    "max_forecast_lyapunov_times": 0.5,
+    "n_train": 3,
+    "n_validation": 2,
+    "n_test": 2,
+    "noise_levels": [0.0],
+    "reference": {
+      "method": "DOP853",
+      "crosscheck_method": "Radau",
+      "crosscheck_workers": 1,
+      "rtol": 1e-09,
+      "atol": 1e-11,
+      "max_step": 0.01,
+      "agreement_threshold": 1e-05
+    },
+    "lyapunov": {
+      "duration": 20.0,
+      "burn_in": 2.0,
+      "step": 0.005,
+      "qr_interval": 2
+    }
+  },
+  "node": {
+    "hidden_dim": 8,
+    "depth": 1,
+    "epochs": 1,
+    "steps_per_epoch": 1,
+    "windows_per_update": 2,
+    "window_steps": 3,
+    "gamma": 0.5,
+    "weak_modes": 2
+  },
+  "sindy": {
+    "degree": 2,
+    "threshold": 0.1,
+    "ridge": 1e-06,
+    "weak_window_steps": 4,
+    "weak_stride_steps": 2,
+    "weak_modes": 2,
+    "ablation_trajectory_counts": [1, 3]
+  },
+  "parametric": {
+    "epochs": 1,
+    "steps_per_epoch": 1,
+    "windows_per_update": 2,
+    "window_steps": 3
+  },
+  "pinn": {
+    "hidden_dim": 8,
+    "depth": 1,
+    "epochs": 1,
+    "steps_per_epoch": 1,
+    "windows_per_update": 2,
+    "quadrature_points": 5,
+    "weak_modes": 2,
+    "train_lyapunov_times": 0.2,
+    "evaluation_lyapunov_times": 0.5
+  },
+  "evaluation": {
+    "internal_step": 0.01,
+    "auc_lyapunov_times": [0.1, 0.2, 0.5],
+    "long_run_subsample": 50,
+    "lyapunov_duration": 0.05,
+    "lyapunov_step": 0.01,
+    "lyapunov_qr_interval": 1
+  },
+  "method_overrides": {
+    "0": {
+      "sindy_weak_weighted": {
+        "sindy": {
+          "ridge": 1.0
+        }
+      }
+    }
+  },
+  "aggregation": {
+    "bootstrap_resamples": 20,
+    "bootstrap_seed": 2026,
+    "require_complete_matrix": true,
+    "require_complete_ablation": false
+  },
+  "final": {
+    "data_seeds": [1],
+    "model_seeds": [0]
+  }
+}
