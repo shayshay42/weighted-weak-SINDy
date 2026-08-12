@@ -107,11 +107,13 @@ QUEUE_SET=v2_panda_comparison_gpu scripts/v2/launch_cpu_workers.sh cpu_train 4
 # Evaluate SINDy on emad2-combine and Panda on emad-gpu
 QUEUE_SET=v2_panda_comparison_cpu scripts/v2/launch_cpu_workers.sh evaluate 16
 RUNS_SUBDIR=v2_panda_comparison scripts/v2/sync_cpu_artifacts_to_gpu.sh
-QUEUE_SET=v2_panda_comparison_gpu scripts/v2/launch_gpu_workers.sh evaluate
+ssh emad-gpu 'cd "$HOME/lorenz63_benchmark" && \
+  scripts/v2/watch_and_launch_panda_evaluation.sh'
 RUNS_SUBDIR=v2_panda_comparison scripts/v2/sync_gpu_artifacts_to_combine.sh
 QUEUE_SET=v2_panda_comparison_cpu scripts/v2/launch_cpu_workers.sh aggregate 1
 ```
 
 The workers are manifest-driven and resumable. SINDy fitting and RK4 evaluation
-remain on the CPU server; only Panda inference occupies GPUs. No Slurm service
-is used.
+remain on the CPU server; only Panda inference occupies GPUs. The Panda watcher
+waits for active GPU processes to exit before launching one worker per detected
+GPU. No Slurm service is used.
