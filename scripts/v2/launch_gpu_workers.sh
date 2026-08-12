@@ -17,7 +17,7 @@ set -euo pipefail
 REMOTE_ROOT="${REMOTE_ROOT_OVERRIDE:-${HOME}/lorenz63_benchmark}"
 if [[ -n "${REMOTE_PYTHON_OVERRIDE}" ]]; then
   REMOTE_PYTHON="${REMOTE_PYTHON_OVERRIDE}"
-elif [[ "${QUEUE_SET}" == "v2_panda_comparison" ]]; then
+elif [[ "${QUEUE_SET}" == v2_panda_comparison* ]]; then
   REMOTE_PYTHON="${HOME}/conda-envs/lorenz-panda-py312/bin/python"
 else
   REMOTE_PYTHON="${HOME}/conda-envs/vdp-pinnverse-py312/bin/python"

@@ -100,14 +100,18 @@ ssh emad-gpu 'cd "$HOME/lorenz63_benchmark" && scripts/v2/setup_panda_gpu_env.sh
 # Prepare on emad2-combine
 ssh emad2-combine 'cd "$HOME/lorenz63_benchmark" && scripts/v2/prepare_panda_comparison.sh'
 
-# Train/create model pointers on emad2-combine
-QUEUE_SET=v2_panda_comparison scripts/v2/launch_cpu_workers.sh cpu_train 16
+# Fit SINDy and create Panda model pointers on emad2-combine
+QUEUE_SET=v2_panda_comparison_cpu scripts/v2/launch_cpu_workers.sh cpu_train 16
+QUEUE_SET=v2_panda_comparison_gpu scripts/v2/launch_cpu_workers.sh cpu_train 4
 
-# Evaluate all methods on emad-gpu, then aggregate on emad2-combine
+# Evaluate SINDy on emad2-combine and Panda on emad-gpu
+QUEUE_SET=v2_panda_comparison_cpu scripts/v2/launch_cpu_workers.sh evaluate 16
 RUNS_SUBDIR=v2_panda_comparison scripts/v2/sync_cpu_artifacts_to_gpu.sh
-QUEUE_SET=v2_panda_comparison scripts/v2/launch_gpu_workers.sh evaluate
+QUEUE_SET=v2_panda_comparison_gpu scripts/v2/launch_gpu_workers.sh evaluate
 RUNS_SUBDIR=v2_panda_comparison scripts/v2/sync_gpu_artifacts_to_combine.sh
-QUEUE_SET=v2_panda_comparison scripts/v2/launch_cpu_workers.sh aggregate 1
+QUEUE_SET=v2_panda_comparison_cpu scripts/v2/launch_cpu_workers.sh aggregate 1
 ```
 
-The workers are manifest-driven and resumable. No Slurm service is used.
+The workers are manifest-driven and resumable. SINDy fitting and RK4 evaluation
+remain on the CPU server; only Panda inference occupies GPUs. No Slurm service
+is used.
