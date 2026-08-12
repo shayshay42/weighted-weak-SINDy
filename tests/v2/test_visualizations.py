@@ -3,12 +3,14 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from lorenz63_benchmark.v2.artifacts import atomic_save_npz
 from lorenz63_benchmark.v2.attractor_summary import (
     normalized_xz_histogram,
     return_map_pairs,
     select_representative_cell,
     xz_in_range_fraction,
 )
+from lorenz63_benchmark.v2.panda_comparison import make_panda_comparison_figures
 from lorenz63_benchmark.v2.visualize import (
     _survival_overlay_noises,
     hierarchical_survival_curves,
@@ -98,3 +100,82 @@ def test_survival_overlay_selects_the_three_nonzero_noise_levels() -> None:
         "noise_level": [0.05, 0.0, 0.001, 0.01, 0.001],
     })
     assert _survival_overlay_noises(frame) == [0.001, 0.01, 0.05]
+
+
+def test_panda_comparison_figure_and_summary_are_generated(tmp_path) -> None:
+    methods = ("sindy_weak_weighted", "sindy_weak", "panda_zero_shot")
+    tracks = {
+        "sindy_weak_weighted": "state_only_dynamics",
+        "sindy_weak": "state_only_dynamics",
+        "panda_zero_shot": "pretrained_sequence_forecasting",
+    }
+    run_rows = []
+    trajectory_rows = []
+    for method_index, method in enumerate(methods):
+        for data_seed in (1, 2):
+            for model_seed in (0, 1):
+                run_id = f"{method}__d{data_seed}__m{model_seed}__n0"
+                run_rows.append({
+                    "run_id": run_id,
+                    "method": method,
+                    "track": tracks[method],
+                    "data_seed": data_seed,
+                    "model_seed": model_seed,
+                    "noise_level": 0.0,
+                    "forecast_context_steps": 512,
+                    "forecast_horizon_lt": 5.0,
+                    "vpt_censoring_fraction": 0.0,
+                    "rq_mmd": 0.03 + 0.01 * method_index,
+                    "wasserstein_x": 0.1 + method_index,
+                    "wasserstein_y": 0.2 + method_index,
+                    "wasserstein_z": 0.3 + method_index,
+                    "covariance_relative_error": 0.05 + method_index,
+                })
+                for trajectory_id in range(4):
+                    vpt = 0.5 + 0.1 * method_index + 0.01 * trajectory_id
+                    trajectory_rows.append({
+                        "run_id": run_id,
+                        "method": method,
+                        "track": tracks[method],
+                        "data_seed": data_seed,
+                        "model_seed": model_seed,
+                        "trajectory_id": trajectory_id,
+                        "noise_level": 0.0,
+                        "vpt_restricted_lt": vpt,
+                        "vpt_censored": False,
+                        "nrmse_auc_0_1LT": 0.2 + method_index,
+                        "nrmse_auc_0_2LT": 0.3 + method_index,
+                        "nrmse_auc_0_5LT": 0.4 + method_index,
+                    })
+    arrays = {}
+    curve_index = []
+    for index, method in enumerate(methods):
+        prefix = f"m{index}"
+        curve_index.append({
+            "prefix": prefix,
+            "track": tracks[method],
+            "noise_level": 0.0,
+            "method": method,
+        })
+        arrays[f"{prefix}_times_lt"] = np.linspace(0.0, 5.0, 21)
+        arrays[f"{prefix}_median"] = np.linspace(1e-6, 1.0 + index, 21)
+        arrays[f"{prefix}_q25"] = np.linspace(1e-6, 0.8 + index, 21)
+        arrays[f"{prefix}_q75"] = np.linspace(1e-5, 1.2 + index, 21)
+    arrays["index_json"] = np.asarray(__import__("json").dumps(curve_index))
+    curves_path = tmp_path / "curves.npz"
+    atomic_save_npz(curves_path, **arrays)
+    outputs, summary = make_panda_comparison_figures(
+        run_metrics=pd.DataFrame(run_rows),
+        trajectory_metrics=pd.DataFrame(trajectory_rows),
+        curves_path=curves_path,
+        output_dir=tmp_path / "figures",
+        config={
+            "aggregation": {"bootstrap_resamples": 20, "bootstrap_seed": 2026},
+            "evaluation": {"error_plot_max": 100.0},
+        },
+    )
+    assert {path.suffix for path in outputs} == {".png", ".svg"}
+    assert all(path.exists() for path in outputs)
+    summary_frame = pd.read_csv(summary)
+    assert list(summary_frame["method"]) == list(methods)
+    assert set(summary_frame["forecast_context_steps"]) == {512}

@@ -11,8 +11,16 @@ The central method, `sindy_weak_weighted`, first constructs the same local integ
 | State observations only | Strong-form Neural ODE, soft-DTW Neural ODE, weak-form Neural ODE, strong-form SINDy, endpoint-weighted SINDy, weak-form SINDy, endpoint-weighted weak-form SINDy |
 | Known Lorenz form, hidden parameters | AD Lorenz, endpoint-tapered AD Lorenz |
 | Exact Lorenz form and parameters | Strong-form PINN, weak-form PINN, endpoint-tapered weak PINN, RK4 numerical oracle |
+| External pretraining plus observed context | Panda zero-shot forecaster |
 
 Results are aggregated within tracks. They should not be interpreted as a single ranking across unequal information contracts.
+
+The optional Panda amendment compares the pinned official pretrained model with
+the two weak-form SINDy variants from a shared 512-sample forecast context. Panda
+is Lorenz-exposed through its pretraining family and receives more test context,
+so this result is reported separately from the state-only leaderboard. See
+[Panda comparison amendment](docs/panda_comparison.md) for the exact protocol,
+literature status, revisions, license, and figure outputs.
 
 ## Installation
 
@@ -24,6 +32,16 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 pytest -q
 ```
+
+Panda inference uses an optional dependency set and downloads the pinned
+checkpoint from Hugging Face:
+
+```bash
+python -m pip install -e ".[dev,panda]"
+```
+
+The official Panda model is released under CC-BY-NC-4.0; confirm that its terms
+fit the intended use before downloading or redistributing weights.
 
 ## CPU smoke test
 

@@ -11,7 +11,7 @@ import pandas as pd
 from .aggregate import aggregate_runs
 from .artifacts import validate_artifact_hashes
 from .config import load_config
-from .contracts import METHODS
+from .contracts import configured_methods
 from .data import generate_split
 from .evaluate import evaluate_run
 from .train import run_training
@@ -29,7 +29,8 @@ def run_smoke(output_root: str | Path, config_path: str | Path) -> Path:
     test_path = split_root / "test.npz"
     dataset_manifest = split_root / "manifest.json"
     runs_root = output_root / "runs"
-    for method in sorted(METHODS):
+    methods = sorted(configured_methods(config))
+    for method in methods:
         run_dir = runs_root / method
         checkpoint = run_training(
             config_path=config_path, train_path=train_path, validation_path=validation_path,
@@ -50,7 +51,7 @@ def run_smoke(output_root: str | Path, config_path: str | Path) -> Path:
     )
     run_metrics = pd.read_csv(outputs["run_metrics"])
     trajectory_metrics = pd.read_csv(outputs["trajectory_metrics"])
-    expected_runs = len(METHODS)
+    expected_runs = len(methods)
     expected_trajectories = expected_runs * int(config["data"]["n_test"])
     if len(run_metrics) != expected_runs:
         raise AssertionError(f"expected {expected_runs} run rows, found {len(run_metrics)}")

@@ -35,6 +35,8 @@ class ForecastMethod(ABC):
     method: str
     track: str
     autonomous: bool
+    required_context_steps: int = 1
+    supports_distribution_metrics: bool = False
 
     @abstractmethod
     def forecast(self, initial_states: np.ndarray, times: np.ndarray) -> np.ndarray:
@@ -42,6 +44,14 @@ class ForecastMethod(ABC):
 
     def vector_field(self, states: np.ndarray) -> np.ndarray:
         raise NotImplementedError(f"{self.method} does not expose an autonomous vector field")
+
+    def forecast_from_context(
+        self, context_states: np.ndarray, times: np.ndarray
+    ) -> np.ndarray:
+        context_states = np.asarray(context_states, dtype=np.float64)
+        if context_states.ndim != 3 or context_states.shape[1] < 1:
+            raise ValueError("context states must have shape [trajectory, time, state]")
+        return self.forecast(context_states[:, -1], times)
 
     def parameters(self) -> dict[str, Any]:
         return {}

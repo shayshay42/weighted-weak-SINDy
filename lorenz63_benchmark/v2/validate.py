@@ -13,6 +13,7 @@ from .artifacts import (
     atomic_write_json, sha256_file, source_hash, utc_now, validate_artifact_hashes,
 )
 from .config import load_config
+from .contracts import configured_methods
 
 
 def _dataset_record_path(root: Path, record: dict[str, Any]) -> Path:
@@ -61,11 +62,14 @@ def validate_benchmark(
         record("complete_run_matrix", True, f"runs={len(run_metrics)}")
     except ValueError as error:
         record("complete_run_matrix", False, str(error))
-    try:
-        _validate_ablation_matrix(ablation_runs, config)
-        record("complete_sindy_ablation", True, f"runs={len(ablation_runs)}")
-    except ValueError as error:
-        record("complete_sindy_ablation", False, str(error))
+    if bool(config["aggregation"].get("require_complete_ablation", True)):
+        try:
+            _validate_ablation_matrix(ablation_runs, config)
+            record("complete_sindy_ablation", True, f"runs={len(ablation_runs)}")
+        except ValueError as error:
+            record("complete_sindy_ablation", False, str(error))
+    else:
+        record("complete_sindy_ablation", True, "skipped: ablation not configured")
     record(
         "unique_run_ids", not run_metrics["run_id"].duplicated().any(),
         f"unique={run_metrics['run_id'].nunique()}, rows={len(run_metrics)}",
@@ -81,21 +85,47 @@ def validate_benchmark(
     record("evaluation_artifact_hashes", evaluation_hashes_ok, f"manifests={len(discovered)}")
 
     noiseless = run_metrics[np.isclose(run_metrics["noise_level"], 0.0)]
-    oracle = noiseless[noiseless["method"] == "solver_oracle"]
-    oracle_ok = (
-        not oracle.empty
-        and np.allclose(oracle["full_horizon_vpt_censoring_fraction"], 1.0)
-        and np.all(oracle["full_forecast_horizon_lt"] > 5.0)
-    )
-    record("oracle_reaches_valid_horizon", oracle_ok, f"runs={len(oracle)}")
-    sindy = noiseless[noiseless["method"].isin(["sindy_strong", "sindy_weighted"])]
-    sindy_limit = float(config["acceptance"]["sindy_coefficient_relative_error"])
-    sindy_max = float(sindy["coefficient_relative_error"].max()) if not sindy.empty else float("inf")
-    record("clean_sindy_coefficients", sindy_max <= sindy_limit, f"max_relative_error={sindy_max:.8g}")
-    ad = noiseless[noiseless["method"].isin(["lorenz_ad", "lorenz_ad_tapered"])]
-    ad_limit = float(config["acceptance"]["ad_parameter_relative_error"])
-    ad_max = float(ad["parameter_relative_error"].max()) if not ad.empty else float("inf")
-    record("clean_ad_parameters", ad_max <= ad_limit, f"max_relative_error={ad_max:.8g}")
+    selected_methods = set(configured_methods(config))
+    if "solver_oracle" in selected_methods:
+        oracle = noiseless[noiseless["method"] == "solver_oracle"]
+        oracle_ok = (
+            not oracle.empty
+            and np.allclose(oracle["full_horizon_vpt_censoring_fraction"], 1.0)
+            and np.all(oracle["full_forecast_horizon_lt"] > 5.0)
+        )
+        record("oracle_reaches_valid_horizon", oracle_ok, f"runs={len(oracle)}")
+    else:
+        record("oracle_reaches_valid_horizon", True, "skipped: oracle not configured")
+
+    coefficient_methods = selected_methods.intersection({"sindy_strong", "sindy_weighted"})
+    if coefficient_methods:
+        sindy = noiseless[noiseless["method"].isin(coefficient_methods)]
+        sindy_limit = float(config["acceptance"]["sindy_coefficient_relative_error"])
+        sindy_max = (
+            float(sindy["coefficient_relative_error"].max())
+            if not sindy.empty else float("inf")
+        )
+        record(
+            "clean_sindy_coefficients", sindy_max <= sindy_limit,
+            f"max_relative_error={sindy_max:.8g}",
+        )
+    else:
+        record(
+            "clean_sindy_coefficients", True,
+            "skipped: strong-form coefficient-recovery methods not configured",
+        )
+
+    ad_methods = selected_methods.intersection({"lorenz_ad", "lorenz_ad_tapered"})
+    if ad_methods:
+        ad = noiseless[noiseless["method"].isin(ad_methods)]
+        ad_limit = float(config["acceptance"]["ad_parameter_relative_error"])
+        ad_max = (
+            float(ad["parameter_relative_error"].max())
+            if not ad.empty else float("inf")
+        )
+        record("clean_ad_parameters", ad_max <= ad_limit, f"max_relative_error={ad_max:.8g}")
+    else:
+        record("clean_ad_parameters", True, "skipped: AD methods not configured")
     nonfinite_runs = 0
     oracle_predictions_finite = True
     for path, manifest in main_runs:

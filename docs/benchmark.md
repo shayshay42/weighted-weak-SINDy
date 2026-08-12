@@ -19,13 +19,20 @@ Development seed `0` is reserved for hyperparameter selection. Final evaluation 
 
 ## Information isolation
 
-The benchmark defines three non-interchangeable tracks:
+The benchmark defines three core non-interchangeable tracks and one optional
+external-pretraining track:
 
 | Track | Available information |
 | --- | --- |
 | State-only dynamics learning | Observed states and observation times |
 | Parametric identification | Observed states, times, and exact Lorenz equation form; parameters hidden |
 | Forward surrogate | Initial conditions plus exact Lorenz equation and parameters |
+| Pretrained sequence forecasting | External pretraining corpus plus observed test context |
+
+The external-pretraining track is contextual reporting rather than an
+information-equivalent extension of the state-only leaderboard. In particular,
+the Panda amendment records its Lorenz-family pretraining exposure and aligns
+all methods to a shared forecast origin without claiming equal prior information.
 
 The training CLI accepts explicit training and validation files but no test argument. Training split metadata omits exact parameters, generator settings, derivatives, and test paths. PINN trainers receive initial conditions rather than trajectory target values. Test truth is loaded only by the evaluation process after a checkpoint is complete.
 

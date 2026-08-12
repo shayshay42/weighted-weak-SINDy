@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import load_config
-from .contracts import METHODS
+from .contracts import METHODS, configured_methods
 from .data import noise_label
 from .artifacts import (
     atomic_write_json, command_line, environment_snapshot, sha256_json,
@@ -36,8 +36,8 @@ def _atomic_jsonl(path: Path, tasks: list[dict[str, Any]]) -> None:
             os.unlink(temporary)
 
 
-def _run_dir(project: Path, noise: str, data_seed: int, method: str, model_seed: int) -> Path:
-    return project / "runs" / "v2" / f"noise_{noise}" / f"split_seed{data_seed}" / method / f"model_seed{model_seed}"
+def _run_dir(runs_root: Path, noise: str, data_seed: int, method: str, model_seed: int) -> Path:
+    return runs_root / f"noise_{noise}" / f"split_seed{data_seed}" / method / f"model_seed{model_seed}"
 
 
 def prepare_queues(
@@ -53,10 +53,11 @@ def prepare_queues(
     evaluation_python: str | None = None,
     evaluation_device: str = "cuda",
     results_dir: str | Path | None = None,
+    runs_root: str | Path | None = None,
 ) -> dict[str, Path]:
     config = load_config(config_path)
     project = Path(project_root)
-    selected_methods = sorted(METHODS if methods is None else set(methods))
+    selected_methods = sorted(configured_methods(config) if methods is None else set(methods))
     unknown = set(selected_methods).difference(METHODS)
     if unknown:
         raise ValueError(f"unknown methods in queue request: {sorted(unknown)}")
@@ -64,6 +65,12 @@ def prepare_queues(
         raise ValueError("evaluation device must be 'cpu' or 'cuda'")
     evaluation_python = evaluation_python or gpu_python
     results_root = Path(results_dir) if results_dir is not None else project / "results" / "v2"
+    if runs_root is None:
+        run_root = project / "runs" / "v2"
+    else:
+        run_root = Path(runs_root)
+        if not run_root.is_absolute():
+            run_root = project / run_root
     config_absolute = project / config_path if not Path(config_path).is_absolute() else Path(config_path)
     data_root = project / "data" / "v2"
     data_seeds = [int(value) for value in config["final"]["data_seeds"]]
@@ -95,7 +102,7 @@ def prepare_queues(
                 target_queue = "gpu_train" if method in GPU_METHODS else "cpu_train"
                 python_executable = gpu_python if method in GPU_METHODS else cpu_python
                 for model_seed in model_seeds:
-                    run_dir = _run_dir(project, label, data_seed, method, model_seed)
+                    run_dir = _run_dir(run_root, label, data_seed, method, model_seed)
                     task_id = f"train_{method}_d{data_seed}_m{model_seed}_n{label}"
                     queues[target_queue].append({
                         "id": task_id, "cwd": str(project),
@@ -127,7 +134,7 @@ def prepare_queues(
                 for method in ablation_methods:
                     model_seed = 0
                     run_dir = (
-                        project / "runs" / "v2" / "ablation" / f"noise_{label}"
+                        run_root / "ablation" / f"noise_{label}"
                         / f"split_seed{data_seed}" / method / f"trajectories_{count}"
                     )
                     queues["cpu_train"].append({
@@ -157,7 +164,7 @@ def prepare_queues(
         "id": "aggregate_final_runs", "cwd": str(project),
         "command": [
             cpu_python, "-m", "lorenz63_benchmark.v2.aggregate",
-            "--config", str(config_absolute), "--runs-root", str(project / "runs" / "v2"),
+            "--config", str(config_absolute), "--runs-root", str(run_root),
             "--output-dir", str(results_root),
         ],
     })
@@ -167,7 +174,7 @@ def prepare_queues(
         "command": [
             cpu_python, "-m", "lorenz63_benchmark.v2.validate",
             "--config", str(config_absolute), "--data-root", str(data_root),
-            "--runs-root", str(project / "runs" / "v2"),
+            "--runs-root", str(run_root),
             "--results-dir", str(results_root),
         ],
     })
@@ -188,6 +195,7 @@ def prepare_queues(
         "include_data": bool(include_data), "include_ablation": bool(include_ablation),
         "evaluation": {"python": evaluation_python, "device": evaluation_device},
         "results_dir": str(results_root),
+        "runs_root": str(run_root),
         "queues": {name: {"path": str(path), "task_count": len(queues[name])} for name, path in paths.items()},
     }
     atomic_write_json(output_dir / "manifest.json", summary)
@@ -207,6 +215,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--evaluation-python")
     parser.add_argument("--evaluation-device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--results-dir")
+    parser.add_argument("--runs-root")
     return parser
 
 
@@ -220,6 +229,7 @@ def main(argv: list[str] | None = None) -> None:
         evaluation_python=args.evaluation_python,
         evaluation_device=args.evaluation_device,
         results_dir=args.results_dir,
+        runs_root=args.runs_root,
     )
     print(*paths.values(), sep="\n")
 

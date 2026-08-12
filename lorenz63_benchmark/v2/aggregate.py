@@ -105,7 +105,7 @@ def discover_completed_runs(runs_root: str | Path) -> list[tuple[Path, dict[str,
 def _validate_main_matrix(run_metrics: pd.DataFrame, config: dict[str, Any]) -> None:
     expected = {
         (method, int(data_seed), int(model_seed), float(noise))
-        for method in config_method_names()
+        for method in config_method_names(config)
         for data_seed in config["final"]["data_seeds"]
         for model_seed in config["final"]["model_seeds"]
         for noise in config["data"]["noise_levels"]
@@ -122,9 +122,10 @@ def _validate_main_matrix(run_metrics: pd.DataFrame, config: dict[str, Any]) -> 
         )
 
 
-def config_method_names() -> list[str]:
-    from .contracts import METHODS
-    return sorted(METHODS)
+def config_method_names(config: dict[str, Any] | None = None) -> list[str]:
+    from .config import DEFAULT_CONFIG
+    from .contracts import configured_methods
+    return sorted(configured_methods(DEFAULT_CONFIG if config is None else config))
 
 
 def _validate_ablation_matrix(
@@ -282,6 +283,20 @@ def aggregate_runs(
         make_track_figures(run_metrics_path, curves_path, output_dir / "figures", config)
         if make_figures else []
     )
+    comparison_summary_path: Path | None = None
+    if make_figures and {
+        "sindy_weak", "sindy_weak_weighted", "panda_zero_shot"
+    }.issubset(set(run_metrics["method"].astype(str))):
+        from .panda_comparison import make_panda_comparison_figures
+
+        comparison_paths, comparison_summary_path = make_panda_comparison_figures(
+            run_metrics=run_metrics,
+            trajectory_metrics=trajectory_metrics,
+            curves_path=curves_path,
+            output_dir=output_dir / "figures",
+            config=config,
+        )
+        figure_paths.extend(comparison_paths)
     manifest_path = output_dir / "manifest.json"
     input_manifest_hashes = {
         str(manifest["run_id"]): sha256_file(run_dir / "manifest.json")
@@ -311,12 +326,20 @@ def aggregate_runs(
         aggregate_manifest["artifacts"][f"figure_{index:02d}"] = {
             "path": str(path.resolve()), "sha256": sha256_file(path),
         }
+    if comparison_summary_path is not None:
+        aggregate_manifest["artifacts"]["panda_comparison_summary"] = {
+            "path": str(comparison_summary_path.resolve()),
+            "sha256": sha256_file(comparison_summary_path),
+        }
     atomic_write_json(manifest_path, aggregate_manifest)
-    return {
+    outputs = {
         "run_metrics": run_metrics_path, "trajectory_metrics": trajectory_metrics_path,
         "bootstrap": bootstrap_path, "curves": curves_path,
         "sindy_ablation_metrics": ablation_path, "manifest": manifest_path,
     }
+    if comparison_summary_path is not None:
+        outputs["panda_comparison_summary"] = comparison_summary_path
+    return outputs
 
 
 def build_arg_parser() -> argparse.ArgumentParser:

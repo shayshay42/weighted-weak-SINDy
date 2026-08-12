@@ -8,7 +8,14 @@ import pytest
 
 from lorenz63_benchmark.v2.artifacts import atomic_save_npz
 from lorenz63_benchmark.v2.config import DEFAULT_CONFIG, config_for_method
-from lorenz63_benchmark.v2.contracts import PARAMETRIC_TRACK, PINN_TRACK, PRIMARY_TRACK, METHODS
+from lorenz63_benchmark.v2.contracts import (
+    METHODS,
+    PARAMETRIC_TRACK,
+    PINN_TRACK,
+    PRETRAINED_TRACK,
+    PRIMARY_TRACK,
+    configured_methods,
+)
 from lorenz63_benchmark.v2.data import load_split
 from lorenz63_benchmark.v2.train import _method_config, build_arg_parser
 from lorenz63_benchmark.v2.validate import _dataset_record_path
@@ -44,12 +51,34 @@ def test_train_cli_has_no_test_argument() -> None:
 
 
 def test_hidden_physics_is_removed_from_non_pinn_trainers() -> None:
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["panda"] = {}
     for method, contract in METHODS.items():
-        sanitized = _method_config(DEFAULT_CONFIG, method)
+        sanitized = _method_config(config, method)
         if contract.track in {PRIMARY_TRACK, PARAMETRIC_TRACK}:
             assert "system" not in sanitized
         elif contract.track == PINN_TRACK:
             assert "system" in sanitized
+        elif contract.track == PRETRAINED_TRACK:
+            assert set(sanitized) == {"schema", "evaluation", "normalization", "panda"}
+
+
+def test_external_pretrained_methods_require_explicit_config_enablement() -> None:
+    assert "panda_zero_shot" not in configured_methods(DEFAULT_CONFIG)
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["final"]["methods"] = ["sindy_weak", "panda_zero_shot"]
+    assert configured_methods(config) == ["sindy_weak", "panda_zero_shot"]
+
+
+def test_focused_config_does_not_inherit_optional_acceptance_methods() -> None:
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["final"]["methods"] = [
+        "sindy_weak", "sindy_weak_weighted", "panda_zero_shot",
+    ]
+    selected = set(configured_methods(config))
+    assert "solver_oracle" not in selected
+    assert not selected.intersection({"sindy_strong", "sindy_weighted"})
+    assert not selected.intersection({"lorenz_ad", "lorenz_ad_tapered"})
 
 
 def test_method_specific_hyperparameters_do_not_cross_methods() -> None:

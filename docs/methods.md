@@ -42,6 +42,16 @@ This construction isolates temporal endpoint weighting from the weak formulation
 - `node_weak` learns a neural vector field from integration-by-parts residuals without derivative labels or exact physics.
 - `lorenz_ad_tapered` and `pinn_weak_tapered` are custom endpoint-tapered benchmark variants in their own information tracks.
 
+## Panda zero-shot forecaster
+
+`panda_zero_shot` wraps the pinned official Panda PatchTST checkpoint as a
+context-conditioned sequence forecaster. It performs no fitting on benchmark
+training trajectories. For the dedicated comparison it consumes 512 clean test
+observations and predicts autoregressively from the same origin used to start
+the autonomous weak-SINDy forecasts. Because Panda's founder pool contains
+Lorenz systems, it is reported in a separate external-pretraining track. See
+[`panda_comparison.md`](panda_comparison.md) for the protocol and caveats.
+
 ## References
 
 - Brunton, Proctor, and Kutz, [Discovering governing equations from data by sparse identification of nonlinear dynamical systems](https://www.pnas.org/doi/10.1073/pnas.1517384113), 2016.
@@ -49,3 +59,5 @@ This construction isolates temporal endpoint weighting from the weak formulation
 - Messenger, Tran, Dukic, and Bortz, [The Weak Form Is Stronger Than You Think](https://arxiv.org/abs/2409.06751), 2024.
 - Bou-Sakr-El-Tayar, Bramburger, and Colbrook, [Weighted Birkhoff Averages Accelerate Data-Driven Methods](https://arxiv.org/abs/2511.17772), 2025.
 - Bramburger et al., [weighted-methods reference implementation](https://github.com/jbramburger/weighted_methods).
+- Lai, Bao, and Gilpin, [Panda: A pretrained forecast model for chaotic dynamics](https://arxiv.org/abs/2505.13755v3), 2026 revision.
+- Gilpin et al., [A Common Task Framework for Evaluating Time-Series Foundation Models on Dynamical Systems](https://arxiv.org/abs/2510.23166), 2025.
