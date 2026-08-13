@@ -11,7 +11,7 @@ The central method, `sindy_weak_weighted`, first constructs the same local integ
 | State observations only | Strong-form Neural ODE, soft-DTW Neural ODE, weak-form Neural ODE, strong-form SINDy, endpoint-weighted SINDy, weak-form SINDy, endpoint-weighted weak-form SINDy |
 | Known Lorenz form, hidden parameters | AD Lorenz, endpoint-tapered AD Lorenz |
 | Exact Lorenz form and parameters | Strong-form PINN, weak-form PINN, endpoint-tapered weak PINN, RK4 numerical oracle |
-| External pretraining plus observed context | Panda zero-shot forecaster |
+| External pretraining plus observed context | Panda zero-shot forecaster, Panda prediction-head target adaptation (`K=1/4/16`) |
 
 Results are aggregated within tracks. They should not be interpreted as a single ranking across unequal information contracts.
 
@@ -26,6 +26,11 @@ The stricter [context-matched protocol](docs/context_matched.md) removes the
 separate 64-trajectory SINDy training set. Panda and both weak-SINDy variants
 receive the same 512 observations from each new trajectory; SINDy is fitted
 online from that prefix in a process that cannot access forecast truth.
+
+The [few-shot target-adaptation protocol](docs/few_shot.md) adds exact
+`1/4/16`-segment learning curves. It freezes Panda's encoder and adapts only its
+prediction head, while weak and weighted weak SINDy are fitted from the same
+640 observed states per shot.
 
 ## Installation
 

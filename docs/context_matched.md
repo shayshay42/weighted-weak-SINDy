@@ -38,7 +38,8 @@ Raw numerical divergence remains present in prediction artifacts and counts as
 a VPT failure. To prevent one overflow from making mean AUC and its bootstrap
 undefined, NRMSE AUC is explicitly restricted at `E(t)=100`; every trajectory
 also carries a `forecast_instability` flag and first-instability time. The cap
-is shared by all methods and fixed before evaluation.
+is shared by all methods and fixed before evaluation. Native point-mass CRPS
+uses the corresponding normalized absolute-error cap of `10`.
 
 The released Panda checkpoint has `loss=mse` and `distribution_output=null`, so
 it emits one deterministic forecast. Its nominal `num_parallel_samples=100`

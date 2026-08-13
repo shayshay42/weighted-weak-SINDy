@@ -42,7 +42,7 @@ This construction isolates temporal endpoint weighting from the weak formulation
 - `node_weak` learns a neural vector field from integration-by-parts residuals without derivative labels or exact physics.
 - `lorenz_ad_tapered` and `pinn_weak_tapered` are custom endpoint-tapered benchmark variants in their own information tracks.
 
-## Panda zero-shot forecaster
+## Panda zero-shot and target adaptation
 
 `panda_zero_shot` wraps the pinned official Panda PatchTST checkpoint as a
 context-conditioned sequence forecaster. It performs no fitting on benchmark
@@ -51,6 +51,10 @@ observations and predicts autoregressively from the same origin used to start
 the autonomous weak-SINDy forecasts. Because Panda's founder pool contains
 Lorenz systems, it is reported in a separate external-pretraining track. See
 [`panda_comparison.md`](panda_comparison.md) for the protocol and caveats.
+
+The optional [`few_shot.md`](few_shot.md) protocol additionally evaluates
+supervised target-system adaptation. It freezes Panda's encoder and updates only
+the prediction head from one, four, or sixteen labeled trajectory segments.
 
 ## References
 

@@ -239,3 +239,4 @@ def test_divergent_forecast_has_finite_restricted_auc_and_explicit_flag() -> Non
     assert rows[0]["forecast_instability"] is True
     assert rows[0]["forecast_instability_lt"] == 2.0
     assert np.isfinite(rows[0]["restricted_nrmse_auc_0_2LT"])
+    assert np.isfinite(rows[0]["mean_coordinate_point_crps_native"])

@@ -450,11 +450,22 @@ def _metric_rows(
         horizon: normalized_rmse_auc(restricted_error, times_lt, horizon)
         for horizon in (1.0, 2.0, 5.0)
     }
-    normalized_absolute_error = np.mean(
-        np.abs(prediction - truth) / np.asarray(scale, dtype=np.float64), axis=-1
+    absolute_error_cap = float(np.sqrt(nrmse_error_cap))
+    with np.errstate(over="ignore", invalid="ignore"):
+        normalized_absolute_error = np.mean(
+            np.abs(prediction - truth) / np.asarray(scale, dtype=np.float64), axis=-1
+        )
+    restricted_absolute_error = np.minimum(
+        np.nan_to_num(
+            normalized_absolute_error,
+            nan=absolute_error_cap,
+            posinf=absolute_error_cap,
+            neginf=absolute_error_cap,
+        ),
+        absolute_error_cap,
     )
     mean_coordinate_point_crps_native = normalized_rmse_auc(
-        normalized_absolute_error ** 2, times_lt, native_horizon_lt
+        restricted_absolute_error ** 2, times_lt, native_horizon_lt
     )
     rows = []
     for trajectory_id in range(prediction.shape[0]):
@@ -728,6 +739,9 @@ def evaluate_context_matched(
             "normalization_source": "observed_context_prefix_only",
             "metric_policy": {
                 "nrmse_auc_error_cap": float(protocol["nrmse_error_cap"]),
+                "point_crps_absolute_error_cap": float(
+                    np.sqrt(protocol["nrmse_error_cap"])
+                ),
                 "raw_divergence_retained_in_predictions": True,
                 "stability_bound": float(config["evaluation"]["stability_bound"]),
             },
@@ -1097,6 +1111,9 @@ def aggregate_context_matched(
         "metric_policy": {
             "nrmse_auc_error_cap": float(
                 config["context_matched"]["nrmse_error_cap"]
+            ),
+            "point_crps_absolute_error_cap": float(
+                np.sqrt(config["context_matched"]["nrmse_error_cap"])
             ),
             "raw_divergence_retained_in_predictions": True,
             "stability_bound": float(config["evaluation"]["stability_bound"]),

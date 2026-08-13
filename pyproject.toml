@@ -42,6 +42,8 @@ lorenz63-v2-attractor-summary = "lorenz63_benchmark.v2.attractor_summary:main"
 lorenz63-v2-visualize = "lorenz63_benchmark.v2.visualize:main"
 lorenz63-v2-context-matched = "lorenz63_benchmark.v2.context_matched:main"
 lorenz63-v2-prepare-context-matched = "lorenz63_benchmark.v2.prepare_context_matched:main"
+lorenz63-v2-few-shot = "lorenz63_benchmark.v2.few_shot:main"
+lorenz63-v2-prepare-few-shot = "lorenz63_benchmark.v2.prepare_few_shot:main"
 
 [tool.setuptools.packages.find]
 include = ["lorenz63_benchmark*"]
