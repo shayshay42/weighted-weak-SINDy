@@ -17,6 +17,7 @@
     "dtype": "float32",
     "sliding_context": true,
     "inference_seed": 99,
+    "probabilistic_output": false,
     "pretraining_overlap": {
       "founder_pool_contains_lorenz": true,
       "canonical_lorenz_listed_in_released_zero_shot_split": false,
@@ -24,8 +25,20 @@
       "interpretation": "Pretrained Lorenz-exposed sequence forecaster; not state-only dynamics learning."
     }
   },
-  "evaluation": {
-    "forecast_context_steps": 512
+  "context_matched": {
+    "methods": [
+      "sindy_weak_weighted",
+      "sindy_weak",
+      "panda_zero_shot"
+    ],
+    "context_steps": 512,
+    "forecast_lyapunov_times": 5.0,
+    "native_prediction_steps": 128,
+    "nrmse_error_cap": 100.0,
+    "normalization": "per_trajectory_context_prefix",
+    "sindy_adaptation": "one_online_fit_per_test_prefix",
+    "separate_training_trajectories": 0,
+    "point_forecast_crps": "degenerate_distribution_equals_normalized_mae"
   },
   "method_overrides": {
     "0": {
@@ -39,15 +52,6 @@
       "panda_zero_shot": {}
     }
   },
-  "plot_order": {
-    "state_only_dynamics": [
-      "sindy_weak_weighted",
-      "sindy_weak"
-    ],
-    "pretrained_sequence_forecasting": [
-      "panda_zero_shot"
-    ]
-  },
   "aggregation": {
     "bootstrap_resamples": 10000,
     "bootstrap_seed": 2026,
@@ -56,10 +60,10 @@
   },
   "final": {
     "data_seeds": [1, 2, 3, 4, 5],
-    "model_seeds": [0, 1, 2],
+    "model_seeds": [0],
     "methods": [
-      "sindy_weak",
       "sindy_weak_weighted",
+      "sindy_weak",
       "panda_zero_shot"
     ]
   }

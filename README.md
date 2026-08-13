@@ -22,6 +22,11 @@ so this result is reported separately from the state-only leaderboard. See
 [Panda comparison amendment](docs/panda_comparison.md) for the exact protocol,
 literature status, revisions, license, and figure outputs.
 
+The stricter [context-matched protocol](docs/context_matched.md) removes the
+separate 64-trajectory SINDy training set. Panda and both weak-SINDy variants
+receive the same 512 observations from each new trajectory; SINDy is fitted
+online from that prefix in a process that cannot access forecast truth.
+
 ## Installation
 
 Python 3.11 and 3.12 are supported.

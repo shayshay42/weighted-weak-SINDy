@@ -13,6 +13,7 @@ from lorenz63_benchmark.v2.panda import PandaForecastAdapter, create_panda_check
 class _FakeConfig:
     context_length = 4
     prediction_length = 2
+    num_parallel_samples = 100
 
 
 class _FakeModel(torch.nn.Module):
@@ -56,6 +57,7 @@ def _checkpoint() -> dict:
             "batch_size": 2,
             "dtype": "float32",
             "sliding_context": True,
+            "inference_seed": 99,
         },
         "normalization": {
             "state_mean": [10.0, 20.0, 30.0],
@@ -83,6 +85,9 @@ def test_panda_forecast_uses_context_and_restores_physical_units() -> None:
     assert pipeline.grad_enabled and not any(pipeline.grad_enabled)
     assert adapter.parameter_count == 7
     assert adapter.last_surrogate_evaluations == 2
+    assert adapter.inference_seed == 99
+    assert adapter.probabilistic is False
+    assert adapter.forecast_sample_count == 1
     with pytest.raises(ValueError, match="needs 4 context points"):
         adapter.forecast_from_context(context[:, :3], times)
 
@@ -116,3 +121,15 @@ def test_panda_checkpoint_records_external_model_without_fitting(tmp_path) -> No
         "external_pretraining_corpus", "observed_state_context"
     ]
     assert training["optimizer_updates"] == 0
+
+
+def test_panda_can_forecast_prefix_normalized_per_trajectory() -> None:
+    pipeline = _FakePipeline()
+    adapter = PandaForecastAdapter(_checkpoint(), pipeline=pipeline)
+    context = np.arange(2 * 4 * 3, dtype=np.float32).reshape(2, 4, 3) / 10.0
+    prediction = adapter.forecast_normalized_context(context, np.arange(4) * 0.01)
+    expected = np.concatenate([
+        context[:, -1:, :],
+        context[:, -1:, :] + 0.5 * np.arange(1, 4)[None, :, None],
+    ], axis=1)
+    np.testing.assert_allclose(prediction, expected)

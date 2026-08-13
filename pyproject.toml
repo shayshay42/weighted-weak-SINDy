@@ -40,6 +40,8 @@ lorenz63-v2-merge-tuning = "lorenz63_benchmark.v2.merge_tuning:main"
 lorenz63-v2-prepare-tuning = "lorenz63_benchmark.v2.prepare_tuning:main"
 lorenz63-v2-attractor-summary = "lorenz63_benchmark.v2.attractor_summary:main"
 lorenz63-v2-visualize = "lorenz63_benchmark.v2.visualize:main"
+lorenz63-v2-context-matched = "lorenz63_benchmark.v2.context_matched:main"
+lorenz63-v2-prepare-context-matched = "lorenz63_benchmark.v2.prepare_context_matched:main"
 
 [tool.setuptools.packages.find]
 include = ["lorenz63_benchmark*"]

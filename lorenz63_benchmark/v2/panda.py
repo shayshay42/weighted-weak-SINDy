@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
 from typing import Any
 
@@ -116,10 +117,13 @@ class PandaForecastAdapter(ForecastMethod):
         self.batch_size = int(model_config["batch_size"])
         self.dtype = str(model_config["dtype"])
         self.sliding_context = bool(model_config["sliding_context"])
+        self.inference_seed = int(model_config.get("inference_seed", 99))
         self.observation_dt = float(checkpoint["observation_dt"])
         self.device = str(device)
         self._pipeline = pipeline
         self.parameter_count = 0
+        self.probabilistic = False
+        self.forecast_sample_count = 1
         self.last_surrogate_evaluations = 0
         self.last_peak_gpu_memory_bytes = 0
         if self.required_context_steps < 1 or self.prediction_length < 1 or self.batch_size < 1:
@@ -140,6 +144,11 @@ class PandaForecastAdapter(ForecastMethod):
                 f"Panda checkpoint prediction length is {prediction_length}, expected {self.prediction_length}"
             )
         self.parameter_count = int(sum(parameter.numel() for parameter in model.parameters()))
+        self.probabilistic = getattr(model, "distribution_output", None) is not None
+        self.forecast_sample_count = (
+            int(getattr(model.config, "num_parallel_samples", 1))
+            if self.probabilistic else 1
+        )
 
     def _ensure_pipeline(self) -> Any:
         if self._pipeline is not None:
@@ -159,6 +168,14 @@ class PandaForecastAdapter(ForecastMethod):
             requested_device = "cuda" if torch.cuda.is_available() else "cpu"
         if requested_device.startswith("cuda") and not torch.cuda.is_available():
             raise RuntimeError("Panda was requested on CUDA, but CUDA is unavailable")
+        # Panda samples unregistered polynomial patch indices while constructing
+        # the model. Match the official evaluation seed so the loaded checkpoint
+        # has a reproducible feature map.
+        random.seed(self.inference_seed)
+        np.random.seed(self.inference_seed)
+        torch.manual_seed(self.inference_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(self.inference_seed)
         model = PatchTSTForPrediction.from_pretrained(
             self.model_id,
             revision=self.model_revision,
@@ -177,15 +194,26 @@ class PandaForecastAdapter(ForecastMethod):
     def forecast_from_context(
         self, context_states: np.ndarray, times: np.ndarray
     ) -> np.ndarray:
-        import torch
-
         context_states = np.asarray(context_states, dtype=np.float64)
-        times = np.asarray(times, dtype=np.float64)
         if context_states.ndim != 3 or context_states.shape[-1] != 3:
             raise ValueError("Panda context must have shape [trajectory, time, 3]")
-        if context_states.shape[1] < self.required_context_steps:
+        normalized_context = self.normalization.normalize_state(context_states).astype(np.float32)
+        normalized_prediction = self.forecast_normalized_context(normalized_context, times)
+        return self.normalization.denormalize_state(normalized_prediction)
+
+    def forecast_normalized_context(
+        self, normalized_context: np.ndarray, times: np.ndarray
+    ) -> np.ndarray:
+        """Forecast normalized contexts without applying global split statistics."""
+        import torch
+
+        normalized_context = np.asarray(normalized_context, dtype=np.float32)
+        times = np.asarray(times, dtype=np.float64)
+        if normalized_context.ndim != 3 or normalized_context.shape[-1] != 3:
+            raise ValueError("Panda context must have shape [trajectory, time, 3]")
+        if normalized_context.shape[1] < self.required_context_steps:
             raise ValueError(
-                f"Panda needs {self.required_context_steps} context points, got {context_states.shape[1]}"
+                f"Panda needs {self.required_context_steps} context points, got {normalized_context.shape[1]}"
             )
         if times.ndim != 1 or times.size < 1 or abs(float(times[0])) > 1e-12:
             raise ValueError("forecast times must be one-dimensional and start at zero")
@@ -195,8 +223,7 @@ class PandaForecastAdapter(ForecastMethod):
             raise ValueError("Panda forecasts must use the observation sampling interval")
 
         pipeline = self._ensure_pipeline()
-        context = context_states[:, -self.required_context_steps :]
-        normalized_context = self.normalization.normalize_state(context).astype(np.float32)
+        context = normalized_context[:, -self.required_context_steps :]
         future_steps = times.size - 1
         if future_steps == 0:
             return context[:, -1:, :].copy()
@@ -206,9 +233,9 @@ class PandaForecastAdapter(ForecastMethod):
         batches = []
         model_calls = 0
         with torch.inference_mode():
-            for start in range(0, normalized_context.shape[0], self.batch_size):
-                stop = min(start + self.batch_size, normalized_context.shape[0])
-                tensor = torch.as_tensor(normalized_context[start:stop], dtype=torch.float32)
+            for start in range(0, context.shape[0], self.batch_size):
+                stop = min(start + self.batch_size, context.shape[0])
+                tensor = torch.as_tensor(context[start:stop], dtype=torch.float32)
                 generated = pipeline.predict(
                     tensor,
                     future_steps,
@@ -222,8 +249,7 @@ class PandaForecastAdapter(ForecastMethod):
                 batches.append(reduced.detach().cpu().numpy())
                 model_calls += math.ceil(future_steps / self.prediction_length)
         normalized_future = np.concatenate(batches, axis=0).astype(np.float64)
-        future = self.normalization.denormalize_state(normalized_future)
-        prediction = np.concatenate([context[:, -1:, :], future], axis=1)
+        prediction = np.concatenate([context[:, -1:, :], normalized_future], axis=1)
         self.last_surrogate_evaluations = model_calls
         if torch.cuda.is_available() and str(pipeline.device).startswith("cuda"):
             self.last_peak_gpu_memory_bytes = int(torch.cuda.max_memory_allocated(pipeline.device))
@@ -236,6 +262,9 @@ class PandaForecastAdapter(ForecastMethod):
             "source_repository": self.source_repository,
             "source_revision": self.source_revision,
             "benchmark_fitting_performed": False,
+            "inference_seed": self.inference_seed,
+            "probabilistic": self.probabilistic,
+            "forecast_sample_count": self.forecast_sample_count,
         }
 
 
