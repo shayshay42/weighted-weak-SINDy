@@ -16,6 +16,12 @@ dependencies = [
 dev = [
   "pytest>=8.0",
 ]
+panda = [
+  "huggingface-hub>=0.19",
+  "safetensors>=0.4",
+  "transformers==4.40.2",
+  "panda @ git+https://github.com/abao1999/panda.git@c229e7c8c49cbe294458c44160248bb17856a715",
+]
 
 [project.urls]
 Repository = "https://github.com/shayshay42/weighted-weak-SINDy"
@@ -34,6 +40,10 @@ lorenz63-v2-merge-tuning = "lorenz63_benchmark.v2.merge_tuning:main"
 lorenz63-v2-prepare-tuning = "lorenz63_benchmark.v2.prepare_tuning:main"
 lorenz63-v2-attractor-summary = "lorenz63_benchmark.v2.attractor_summary:main"
 lorenz63-v2-visualize = "lorenz63_benchmark.v2.visualize:main"
+lorenz63-v2-context-matched = "lorenz63_benchmark.v2.context_matched:main"
+lorenz63-v2-prepare-context-matched = "lorenz63_benchmark.v2.prepare_context_matched:main"
+lorenz63-v2-few-shot = "lorenz63_benchmark.v2.few_shot:main"
+lorenz63-v2-prepare-few-shot = "lorenz63_benchmark.v2.prepare_few_shot:main"
 
 [tool.setuptools.packages.find]
 include = ["lorenz63_benchmark*"]

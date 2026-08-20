@@ -11,8 +11,50 @@ The central method, `sindy_weak_weighted`, first constructs the same local integ
 | State observations only | Strong-form Neural ODE, soft-DTW Neural ODE, weak-form Neural ODE, strong-form SINDy, endpoint-weighted SINDy, weak-form SINDy, endpoint-weighted weak-form SINDy |
 | Known Lorenz form, hidden parameters | AD Lorenz, endpoint-tapered AD Lorenz |
 | Exact Lorenz form and parameters | Strong-form PINN, weak-form PINN, endpoint-tapered weak PINN, RK4 numerical oracle |
+| External pretraining plus observed context | Panda zero-shot forecaster, Panda prediction-head target adaptation (`K=1/4/16`) |
 
 Results are aggregated within tracks. They should not be interpreted as a single ranking across unequal information contracts.
+
+The optional Panda amendment compares the pinned official pretrained model with
+the two weak-form SINDy variants from a shared 512-sample forecast context. Panda
+is Lorenz-exposed through its pretraining family and receives more test context,
+so this result is reported separately from the state-only leaderboard. See
+[Panda comparison amendment](docs/panda_comparison.md) for the exact protocol,
+literature status, revisions, license, and figure outputs.
+
+The stricter [context-matched protocol](docs/context_matched.md) removes the
+separate 64-trajectory SINDy training set. Panda and both weak-SINDy variants
+receive the same 512 observations from each new trajectory; SINDy is fitted
+online from that prefix in a process that cannot access forecast truth.
+
+The [few-shot target-adaptation protocol](docs/few_shot.md) adds exact
+`1/4/16`-segment learning curves. It freezes Panda's encoder and adapts only its
+prediction head, while weak and weighted weak SINDy are fitted from the same
+640 observed states per shot.
+
+## Research status and handoff
+
+The repository now records the experimental history as separate evidence
+phases rather than presenting every run as one benchmark:
+
+- [Research status](docs/research_status.md) is the current index of completed,
+  rejected, and open hypotheses.
+- [Preliminary v1](docs/results/preliminary_v1.md) explains why the original
+  proof-of-concept runs are exploratory and must not be quoted as v2 results.
+- [Lorenz63 v2 results](docs/results/lorenz63_v2.md) records the accepted
+  information-controlled benchmark and its main numerical conclusions.
+- [Panda and TSFM/WM phase](docs/results/panda_tsfm_wm.md) records the direct,
+  context-matched, and few-shot Panda studies.
+- [Migration runbook](docs/migration.md) describes how to reconstruct the work
+  on a larger machine and transfer the full generated artifacts.
+- [Inverse dataset benchmark](docs/next_sindy_dataset_benchmark.md) is the
+  agent-ready next task: run strong, weak, and weighted weak SINDy on Panda and
+  CTF4Science datasets.
+
+Compact, publication-safe result tables and SVG figures are tracked under
+[`artifacts/v2`](artifacts/v2/README.md). Raw trajectories, checkpoints,
+predictions, host manifests, and model weights remain outside Git and are
+covered by the migration runbook.
 
 ## Installation
 
@@ -24,6 +66,16 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 pytest -q
 ```
+
+Panda inference uses an optional dependency set and downloads the pinned
+checkpoint from Hugging Face:
+
+```bash
+python -m pip install -e ".[dev,panda]"
+```
+
+The official Panda model is released under CC-BY-NC-4.0; confirm that its terms
+fit the intended use before downloading or redistributing weights.
 
 ## CPU smoke test
 
@@ -81,4 +133,7 @@ The paper configuration is intentionally expensive: five final data splits, thre
 
 See [benchmark specification](docs/benchmark.md) for the full evaluation contract and [method details](docs/methods.md) for the weighted weak formulation and literature context.
 
-Generated datasets, checkpoints, predictions, queues, and figures are intentionally excluded from version control.
+Generated datasets, checkpoints, predictions, queues, and full figure sets are
+intentionally excluded from version control. A sanitized result snapshot is
+tracked under `artifacts/v2` so the documented conclusions can be audited from
+a fresh clone.

@@ -37,6 +37,24 @@ def _nanmedian(values: np.ndarray) -> float:
     return float(np.median(observed)) if observed.size else float("nan")
 
 
+def contextual_forecast_view(
+    states: np.ndarray, times: np.ndarray, context_steps: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    states = np.asarray(states, dtype=np.float64)
+    times = np.asarray(times, dtype=np.float64)
+    if states.ndim != 3 or states.shape[1] != times.size:
+        raise ValueError("test states and times must have shapes [trajectory,time,state] and [time]")
+    if context_steps < 1 or context_steps > times.size:
+        raise ValueError(
+            f"forecast context requests {context_steps} points from a {times.size}-point test split"
+        )
+    origin = context_steps - 1
+    context = states[:, :context_steps]
+    forecast_times = times[origin:] - times[origin]
+    truth = states[:, origin:]
+    return context, forecast_times, truth, origin
+
+
 def evaluate_run(
     *,
     config_path: str | Path | None,
@@ -89,14 +107,27 @@ def evaluate_run(
     method = str(run_manifest["method"])
     adapter = load_method(checkpoint, method, config, device=device)
     integration_internal_step = getattr(adapter, "internal_step", None)
+    required_context_steps = int(getattr(adapter, "required_context_steps", 1))
+    configured_context_steps = int(config["evaluation"].get("forecast_context_steps", 1))
+    context_steps = max(required_context_steps, configured_context_steps)
+    if context_steps < 1:
+        raise ValueError("forecast context must contain at least one observation")
     forecast_evaluator = {
-        "kind": "fixed_step_float64_rk4" if integration_internal_step is not None else "conditional_flow_map",
+        "kind": (
+            "fixed_step_float64_rk4" if integration_internal_step is not None
+            else "pretrained_sequence_forecaster" if required_context_steps > 1
+            else "conditional_flow_map"
+        ),
         "internal_step": (
             float(integration_internal_step) if integration_internal_step is not None else None
         ),
+        "context_steps": context_steps,
     }
-    forecast_times = np.asarray(test["times"], dtype=np.float64)
-    forecast_truth = np.asarray(test["states"], dtype=np.float64)
+    source_times = np.asarray(test["times"], dtype=np.float64)
+    source_truth = np.asarray(test["states"], dtype=np.float64)
+    context_states, forecast_times, forecast_truth, forecast_origin_index = contextual_forecast_view(
+        source_truth, source_times, context_steps
+    )
     largest = float(dataset_manifest["largest_lyapunov_exponent"])
     if adapter.track == PINN_TRACK and method != "solver_oracle":
         maximum_lt = float(config["pinn"]["evaluation_lyapunov_times"])
@@ -106,7 +137,7 @@ def evaluate_run(
         forecast_truth = forecast_truth[:, : stop + 1]
 
     started = time.perf_counter()
-    forecast_prediction = adapter.forecast(forecast_truth[:, 0], forecast_times)
+    forecast_prediction = adapter.forecast_from_context(context_states, forecast_times)
     inference_seconds = time.perf_counter() - started
     if forecast_prediction.shape != forecast_truth.shape:
         raise RuntimeError(
@@ -160,12 +191,13 @@ def evaluate_run(
     if np.count_nonzero(burn_mask) < 2:
         burn_mask = np.arange(forecast_times.size) >= forecast_times.size // 2
     long_run: dict[str, Any] = {}
-    if adapter.autonomous:
+    if adapter.autonomous or bool(getattr(adapter, "supports_distribution_metrics", False)):
         long_run.update(distribution_metrics(
             forecast_prediction[:, burn_mask], forecast_truth[:, burn_mask],
             stability_bound=float(config["evaluation"]["stability_bound"]),
             maximum_samples=int(config["evaluation"]["long_run_subsample"]),
         ))
+    if adapter.autonomous:
         long_run.update(learned_lyapunov_metrics(
             adapter.vector_field, forecast_truth[0, 0],
             np.asarray(dataset_manifest["lyapunov_spectrum"]),
@@ -193,6 +225,8 @@ def evaluate_run(
         "data_seed": int(run_manifest["seeds"]["data"]),
         "model_seed": int(run_manifest["seeds"]["model"]),
         "noise_level": float(train["metadata"]["noise_level"]),
+        "forecast_context_steps": context_steps,
+        "forecast_origin_time": float(source_times[forecast_origin_index]),
         "forecast_horizon_lt": float(metric_times_lt[-1]),
         "full_forecast_horizon_lt": float(forecast_times_lt[-1]),
         "full_horizon_vpt_censoring_fraction": float(np.mean(full_censored)),
@@ -212,9 +246,15 @@ def evaluate_run(
             run_manifest.get("training", {}).get("vector_field_evaluations", 0)
         ),
         "training_wall_time_seconds": float(run_manifest.get("training", {}).get("wall_time_seconds", 0.0)),
-        "parameter_count": int(run_manifest.get("training", {}).get("parameter_count", 0)),
+        "parameter_count": max(
+            int(run_manifest.get("training", {}).get("parameter_count", 0)),
+            int(getattr(adapter, "parameter_count", 0)),
+        ),
         "optimizer_updates": int(run_manifest.get("training", {}).get("optimizer_updates", 0)),
         "peak_gpu_memory_bytes": int(run_manifest.get("training", {}).get("peak_gpu_memory_bytes", 0)),
+        "inference_peak_gpu_memory_bytes": int(
+            getattr(adapter, "last_peak_gpu_memory_bytes", 0)
+        ),
         "parameter_relative_error": parameter_error,
         "coefficient_relative_error": coefficient_error,
     }
@@ -229,6 +269,9 @@ def evaluate_run(
         normalized_squared_error=forecast_error.astype(np.float32),
         metric_times=metric_times, metric_normalized_squared_error=error.astype(np.float32),
         vpt_restricted_lt=vpt, vpt_censored=censored,
+        forecast_context_steps=np.asarray(context_steps, dtype=np.int64),
+        forecast_origin_index=np.asarray(forecast_origin_index, dtype=np.int64),
+        forecast_origin_time=np.asarray(source_times[forecast_origin_index], dtype=np.float64),
     )
     trajectory_metrics_path = run_dir / "trajectory_metrics.csv"
     atomic_write_csv(trajectory_metrics_path, trajectory_rows)

@@ -13,7 +13,7 @@ from .artifacts import (
     sha256_file, sha256_json, source_hash, utc_now,
 )
 from .config import deep_update, load_config, save_config
-from .contracts import METHODS, TRACK_LABELS
+from .contracts import CORE_METHODS, METHODS, TRACK_LABELS
 from .data import load_split, noise_label
 from .metrics import normalized_rmse_auc, normalized_squared_error
 from .registry import load_method
@@ -228,7 +228,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--validation", required=True)
     parser.add_argument("--output-dir", default="tuning/v2")
     parser.add_argument("--output-config", default="configs/v2/lorenz63_frozen.json")
-    parser.add_argument("--methods", nargs="+", choices=sorted(METHODS), default=sorted(METHODS))
+    parser.add_argument(
+        "--methods", nargs="+", choices=sorted(METHODS), default=sorted(CORE_METHODS)
+    )
     parser.add_argument("--model-seed", type=int, default=0)
     parser.add_argument("--device", default="auto")
     return parser
