@@ -1,5 +1,10 @@
 # Panda Few-Shot Target Adaptation
 
+This study completed on 2026-08-13. See
+[Panda and TSFM/WM phase](results/panda_tsfm_wm.md) for the frozen learning curve
+and conclusions, or inspect the tracked
+[bootstrap summary](../artifacts/v2/few_shot/bootstrap_summary.csv).
+
 This protocol measures whether a small amount of labeled Lorenz63 data improves
 the released Panda checkpoint relative to zero-shot inference and matched-data
 weak-form SINDy.

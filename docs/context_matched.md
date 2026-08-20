@@ -1,5 +1,10 @@
 # Context-Matched Panda and Weak-SINDy Comparison
 
+This study completed on 2026-08-13. See
+[Panda and TSFM/WM phase](results/panda_tsfm_wm.md) for the result table and
+interpretation, or inspect the tracked
+[bootstrap summary](../artifacts/v2/context_matched/bootstrap_summary.csv).
+
 This protocol asks a narrow deployment question:
 
 > Given the same 512 observations from a new Lorenz63 trajectory, does a

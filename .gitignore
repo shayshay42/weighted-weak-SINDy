@@ -12,12 +12,12 @@ htmlcov/
 build/
 dist/
 
-data/
-runs/
-results/
-queues/
-tuning/
-logs/
-worker_state/
+/data/
+/runs/
+/results/
+/queues/
+/tuning/
+/logs/
+/worker_state/
 
 .DS_Store

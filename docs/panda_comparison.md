@@ -1,5 +1,11 @@
 # Panda Comparison Amendment
 
+This run matrix completed and passed acceptance on 2026-08-12. The numerical
+results and subsequent context-matched/few-shot conclusions are consolidated in
+[Panda and TSFM/WM phase](results/panda_tsfm_wm.md). A sanitized aggregate table
+and SVG are tracked in the
+[direct-comparison snapshot](../artifacts/v2/panda_direct/bootstrap_summary.csv).
+
 This amendment compares the official pretrained Panda forecaster with the two
 weak-form sparse dynamics models on noiseless canonical Lorenz63:
 

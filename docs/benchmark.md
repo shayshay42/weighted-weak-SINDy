@@ -1,5 +1,9 @@
 # Lorenz63 Benchmark Contract
 
+The final v2 run matrix completed and passed acceptance on 2026-07-20. See the
+[validated result report](results/lorenz63_v2.md) for estimates, uncertainty,
+noise robustness, interpretation, and the tracked evidence snapshot.
+
 ## Task
 
 Given full-state observations sampled at `dt = 0.01`, learn autonomous dynamics and forecast trajectories from unseen initial conditions on the Lorenz63 attractor. The canonical system uses `(sigma, rho, beta) = (10, 28, 8/3)`.

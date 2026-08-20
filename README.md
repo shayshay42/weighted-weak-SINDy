@@ -32,6 +32,30 @@ The [few-shot target-adaptation protocol](docs/few_shot.md) adds exact
 prediction head, while weak and weighted weak SINDy are fitted from the same
 640 observed states per shot.
 
+## Research status and handoff
+
+The repository now records the experimental history as separate evidence
+phases rather than presenting every run as one benchmark:
+
+- [Research status](docs/research_status.md) is the current index of completed,
+  rejected, and open hypotheses.
+- [Preliminary v1](docs/results/preliminary_v1.md) explains why the original
+  proof-of-concept runs are exploratory and must not be quoted as v2 results.
+- [Lorenz63 v2 results](docs/results/lorenz63_v2.md) records the accepted
+  information-controlled benchmark and its main numerical conclusions.
+- [Panda and TSFM/WM phase](docs/results/panda_tsfm_wm.md) records the direct,
+  context-matched, and few-shot Panda studies.
+- [Migration runbook](docs/migration.md) describes how to reconstruct the work
+  on a larger machine and transfer the full generated artifacts.
+- [Inverse dataset benchmark](docs/next_sindy_dataset_benchmark.md) is the
+  agent-ready next task: run strong, weak, and weighted weak SINDy on Panda and
+  CTF4Science datasets.
+
+Compact, publication-safe result tables and SVG figures are tracked under
+[`artifacts/v2`](artifacts/v2/README.md). Raw trajectories, checkpoints,
+predictions, host manifests, and model weights remain outside Git and are
+covered by the migration runbook.
+
 ## Installation
 
 Python 3.11 and 3.12 are supported.
@@ -109,4 +133,7 @@ The paper configuration is intentionally expensive: five final data splits, thre
 
 See [benchmark specification](docs/benchmark.md) for the full evaluation contract and [method details](docs/methods.md) for the weighted weak formulation and literature context.
 
-Generated datasets, checkpoints, predictions, queues, and figures are intentionally excluded from version control.
+Generated datasets, checkpoints, predictions, queues, and full figure sets are
+intentionally excluded from version control. A sanitized result snapshot is
+tracked under `artifacts/v2` so the documented conclusions can be audited from
+a fresh clone.
