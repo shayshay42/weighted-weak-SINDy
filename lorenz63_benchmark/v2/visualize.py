@@ -12,6 +12,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from matplotlib.lines import Line2D
+from matplotlib.patches import FancyBboxPatch
 import numpy as np
 import pandas as pd
 
@@ -50,6 +51,12 @@ TRACK_LINESTYLES = {
     PARAMETRIC_TRACK: (0, (6, 2.2)),
     PINN_TRACK: (0, (1.2, 1.7)),
     PRETRAINED_TRACK: (0, (5.0, 1.8, 1.2, 1.8)),
+}
+SURVIVAL_LEGEND_WIDTHS = {
+    PRIMARY_TRACK: 0.35,
+    PARAMETRIC_TRACK: 0.23,
+    PINN_TRACK: 0.19,
+    PRETRAINED_TRACK: 0.23,
 }
 
 
@@ -458,6 +465,120 @@ def _survival_overlay_noises(run_metrics: pd.DataFrame) -> list[float]:
     return nonzero
 
 
+def _draw_grouped_survival_legend(
+    axis: plt.Axes,
+    plotted_methods: Iterable[str],
+) -> None:
+    """Draw a table-like legend grouped by information track."""
+    axis.set_xlim(0.0, 1.0)
+    axis.set_ylim(0.0, 1.0)
+    axis.axis("off")
+
+    left, right = 0.006, 0.994
+    bottom, top = 0.045, 0.955
+    header_y = 0.80
+    separator_y = 0.665
+    border_color = "#303030"
+    legend_box = FancyBboxPatch(
+        (left, bottom),
+        right - left,
+        top - bottom,
+        boxstyle="round,pad=0.006,rounding_size=0.022",
+        transform=axis.transAxes,
+        facecolor="#f7f7f7",
+        edgecolor=border_color,
+        linewidth=1.05,
+        clip_on=False,
+        zorder=0,
+    )
+    axis.add_patch(legend_box)
+    axis.plot(
+        [left, right], [separator_y, separator_y],
+        color=border_color,
+        linewidth=0.8,
+        transform=axis.transAxes,
+        clip_on=False,
+    )
+
+    methods = list(plotted_methods)
+    cursor = left
+    for track_index, track in enumerate(OVERLAY_TRACKS):
+        width = (right - left) * SURVIVAL_LEGEND_WIDTHS[track]
+        track_left = cursor
+        track_right = (
+            right if track_index == len(OVERLAY_TRACKS) - 1 else cursor + width
+        )
+        if track_index:
+            axis.plot(
+                [track_left, track_left], [bottom, top],
+                color=border_color,
+                linewidth=0.8,
+                transform=axis.transAxes,
+                clip_on=False,
+            )
+
+        padding = 0.018 * (right - left)
+        sample_width = min(0.035, 0.18 * (track_right - track_left))
+        sample_left = track_left + padding
+        sample_right = sample_left + sample_width
+        axis.plot(
+            [sample_left, sample_right], [header_y, header_y],
+            color="#202020",
+            linewidth=2.1,
+            linestyle=TRACK_LINESTYLES[track],
+            solid_capstyle="round",
+            dash_capstyle="round",
+            transform=axis.transAxes,
+            clip_on=False,
+        )
+        axis.text(
+            sample_right + 0.010,
+            header_y,
+            TRACK_LABELS[track],
+            transform=axis.transAxes,
+            ha="left",
+            va="center",
+            fontsize=7.4,
+            fontweight="semibold",
+            color="#202020",
+        )
+
+        track_methods = [method for method in methods if METHODS[method].track == track]
+        column_count = 2 if track == PRIMARY_TRACK and len(track_methods) > 4 else 1
+        row_count = max(1, int(np.ceil(len(track_methods) / column_count)))
+        content_top = separator_y - 0.115
+        content_bottom = bottom + 0.105
+        row_positions = np.linspace(content_top, content_bottom, row_count)
+        column_width = (track_right - track_left - 2 * padding) / column_count
+        for position, method in enumerate(track_methods):
+            column = position // row_count
+            row = position % row_count
+            item_left = track_left + padding + column * column_width
+            item_sample_width = min(0.034, 0.18 * column_width)
+            axis.plot(
+                [item_left, item_left + item_sample_width],
+                [row_positions[row], row_positions[row]],
+                color=METHODS[method].color,
+                linewidth=2.15,
+                linestyle=TRACK_LINESTYLES[track],
+                solid_capstyle="round",
+                dash_capstyle="round",
+                transform=axis.transAxes,
+                clip_on=False,
+            )
+            axis.text(
+                item_left + item_sample_width + 0.008,
+                row_positions[row],
+                METHODS[method].label,
+                transform=axis.transAxes,
+                ha="left",
+                va="center",
+                fontsize=6.9,
+                color="#202020",
+            )
+        cursor = track_right
+
+
 def plot_forecast_survival_overlay(
     *,
     trajectory_metrics: pd.DataFrame,
@@ -476,7 +597,17 @@ def plot_forecast_survival_overlay(
           for noise in noises),
     )
     times = np.linspace(0.0, maximum, 121)
-    figure, axes = plt.subplots(1, 3, figsize=(18, 6.1), sharex=True, sharey=True)
+    figure = plt.figure(figsize=(18, 7.2))
+    grid = figure.add_gridspec(
+        2, 3, height_ratios=(4.45, 1.55), hspace=0.24, wspace=0.14,
+    )
+    axes_list: list[plt.Axes] = []
+    for column in range(3):
+        shared = axes_list[0] if axes_list else None
+        axes_list.append(
+            figure.add_subplot(grid[0, column], sharex=shared, sharey=shared)
+        )
+    axes = np.asarray(axes_list)
     plotted_methods: list[str] = []
     for axis, noise in zip(axes, noises):
         group = trajectory_metrics[np.isclose(trajectory_metrics["noise_level"], noise)]
@@ -515,30 +646,9 @@ def plot_forecast_survival_overlay(
         _despine(axis)
     axes[0].set_ylabel(r"Fraction of forecasts with $E(t) \leq 0.4$")
 
-    method_handles = [
-        Line2D(
-            [0], [0], color=METHODS[method].color, linewidth=2.2,
-            linestyle=TRACK_LINESTYLES[METHODS[method].track],
-            label=METHODS[method].label,
-        )
-        for method in plotted_methods
-    ]
-    figure.legend(
-        handles=method_handles,
-        title=(
-            "Methods — line style marks information track: "
-            "solid = state-only; dashed = known form; "
-            "dotted = known physics; dash-dot = pretrained"
-        ),
-        loc="lower center",
-        bbox_to_anchor=(0.5, 0.005),
-        ncol=4,
-        fontsize=8,
-        title_fontsize=8.5,
-        columnspacing=1.5,
-        handlelength=3.0,
-    )
-    figure.subplots_adjust(left=0.065, right=0.99, top=0.94, bottom=0.29, wspace=0.14)
+    legend_axis = figure.add_subplot(grid[1, :])
+    _draw_grouped_survival_legend(legend_axis, plotted_methods)
+    figure.subplots_adjust(left=0.065, right=0.99, top=0.97, bottom=0.035)
     _save_figure(
         figure,
         output_dir,
@@ -549,7 +659,8 @@ def plot_forecast_survival_overlay(
         role="main",
         description=(
             "All methods overlaid at 0.1%, 1%, and 5% benchmark-training noise; color "
-            "identifies method and line style identifies the information track. Pretrained "
+            "identifies method; the grouped legend headers encode information track by line "
+            "style. Pretrained "
             "zero-shot references use a fixed 512-sample clean test prefix and are repeated "
             "across panels rather than trained on the noisy split."
         ),

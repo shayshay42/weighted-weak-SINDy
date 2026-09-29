@@ -1,6 +1,6 @@
 # TSFM and integral-matching survival extension
 
-Last updated: 2026-08-21
+Last updated: 2026-09-29
 
 This extension adds two external-pretraining references and one known-form
 parameter estimator to the existing Lorenz63 v2 survival plot. It does not
@@ -89,10 +89,10 @@ existing Panda aggregate.
 Compact public artifacts are in
 [`artifacts/v2/tsfm_integral_survival`](../../artifacts/v2/tsfm_integral_survival/README.md).
 The PNG and PDF SHA-256 hashes are respectively
-`640bc9856e5dcafd6dbd8e86da65bddc8467aa39f25a7b573545b7b0e233ea0d` and
-`722b44a6aef7c26a75c6de2be74c7340c430a1ca158c2d8300fa946438aecbdd`.
+`42c9f5a3563963171f99546c7fa798cc9a4bd621cd9426d0aaa8453a085b5a87` and
+`57a9f77b7e56902d684d47f405ea7e0e6006d46bdeaada46abd3c53f89801655`.
 The publication layout omits a figure-level title and floating annotation; all
-method names and information-track line-style mappings share one legend block
-below the panels.
+16 method names and information-track line-style mappings share one boxed
+legend below the panels, partitioned into four track columns.
 The full host-side extension remains in the private archive covered by the
 [migration runbook](../migration.md).
