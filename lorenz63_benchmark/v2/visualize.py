@@ -515,14 +515,6 @@ def plot_forecast_survival_overlay(
         _despine(axis)
     axes[0].set_ylabel(r"Fraction of forecasts with $E(t) \leq 0.4$")
 
-    track_handles = [
-        Line2D(
-            [0], [0], color="#222222", linewidth=2.2,
-            linestyle=TRACK_LINESTYLES[track], label=TRACK_LABELS[track],
-        )
-        for track in OVERLAY_TRACKS
-        if any(METHODS[method].track == track for method in plotted_methods)
-    ]
     method_handles = [
         Line2D(
             [0], [0], color=METHODS[method].color, linewidth=2.2,
@@ -531,19 +523,13 @@ def plot_forecast_survival_overlay(
         )
         for method in plotted_methods
     ]
-    track_legend = figure.legend(
-        handles=track_handles,
-        title="Information track (line style)",
-        loc="upper center",
-        bbox_to_anchor=(0.5, 0.925),
-        ncol=len(track_handles),
-        fontsize=8.5,
-        title_fontsize=8.5,
-    )
-    figure.add_artist(track_legend)
     figure.legend(
         handles=method_handles,
-        title="Method (color and track line style)",
+        title=(
+            "Methods — line style marks information track: "
+            "solid = state-only; dashed = known form; "
+            "dotted = known physics; dash-dot = pretrained"
+        ),
         loc="lower center",
         bbox_to_anchor=(0.5, 0.005),
         ncol=4,
@@ -552,25 +538,7 @@ def plot_forecast_survival_overlay(
         columnspacing=1.5,
         handlelength=3.0,
     )
-    if any(METHODS[method].track == PRETRAINED_TRACK for method in plotted_methods):
-        figure.text(
-            0.5,
-            0.225,
-            (
-                "Zero-shot TSFM references are repeated across panels: they receive a fixed "
-                "512-sample clean test prefix and do not train on the panel's noisy split."
-            ),
-            ha="center",
-            va="center",
-            fontsize=8.2,
-            color="#333333",
-        )
-    figure.suptitle(
-        "Valid-prediction-time survival across methods and noisy training sets",
-        fontsize=15,
-        y=0.985,
-    )
-    figure.subplots_adjust(left=0.065, right=0.99, top=0.82, bottom=0.30, wspace=0.14)
+    figure.subplots_adjust(left=0.065, right=0.99, top=0.94, bottom=0.29, wspace=0.14)
     _save_figure(
         figure,
         output_dir,

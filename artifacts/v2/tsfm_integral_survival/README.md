@@ -13,8 +13,10 @@ cross-track references, not common-information competitors.
 
 Files:
 
-- `forecast_survival__all_tracks__noisy_levels.png`: rendered extension;
-- `forecast_survival__all_tracks__noisy_levels.pdf`: vector publication copy;
+- `forecast_survival__all_tracks__noisy_levels.png`: rendered extension with a
+  title-free panel layout and one consolidated legend;
+- `forecast_survival__all_tracks__noisy_levels.pdf`: matching vector
+  publication copy;
 - `summary.csv`: compact run-level means for the added methods; and
 - `provenance.json`: pinned inputs, protocols, counts, and hashes without host-local paths.
 
