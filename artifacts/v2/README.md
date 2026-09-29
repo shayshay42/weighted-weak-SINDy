@@ -11,6 +11,7 @@ predictions, checkpoints, downloaded model weights, queues, or host manifests.
 | `panda_direct` | Direct cross-track Panda comparison | 45 |
 | `context_matched` | Shared 512-point prefix | 15 deterministic split-method runs |
 | `few_shot` | Panda head adaptation and matched SINDy shots | 50 conditions by split |
+| `tsfm_integral_survival` | Integral matching plus fixed-prefix Panda/Chronos survival references | 60 integral, 15 Panda, 5 Chronos source runs |
 
 The result tables, acceptance reports, and SVGs preserve the aggregate outputs
 generated on the CPU host. Line endings and generated trailing whitespace were

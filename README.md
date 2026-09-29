@@ -9,9 +9,9 @@ The central method, `sindy_weak_weighted`, first constructs the same local integ
 | Information track | Implementations |
 | --- | --- |
 | State observations only | Strong-form Neural ODE, soft-DTW Neural ODE, weak-form Neural ODE, strong-form SINDy, endpoint-weighted SINDy, weak-form SINDy, endpoint-weighted weak-form SINDy |
-| Known Lorenz form, hidden parameters | AD Lorenz, endpoint-tapered AD Lorenz |
+| Known Lorenz form, hidden parameters | Integral-matching Lorenz, AD Lorenz, endpoint-tapered AD Lorenz |
 | Exact Lorenz form and parameters | Strong-form PINN, weak-form PINN, endpoint-tapered weak PINN, RK4 numerical oracle |
-| External pretraining plus observed context | Panda zero-shot forecaster, Panda prediction-head target adaptation (`K=1/4/16`) |
+| External pretraining plus observed context | Panda and Chronos-T5 zero-shot forecasters, Panda prediction-head target adaptation (`K=1/4/16`) |
 
 Results are aggregated within tracks. They should not be interpreted as a single ranking across unequal information contracts.
 
@@ -45,16 +45,28 @@ phases rather than presenting every run as one benchmark:
   information-controlled benchmark and its main numerical conclusions.
 - [Panda and TSFM/WM phase](docs/results/panda_tsfm_wm.md) records the direct,
   context-matched, and few-shot Panda studies.
+- [Amortized foundation-conditioned SINDy gate](docs/results/amortized_foundation_gate.md)
+  records the source-only Panda/Chronos/TabPFN runs, the equation-native
+  ODEFormer conditioner, and its truth-separated Lorenz and CTF4Science gates.
+- [Weak-form and Birkhoff-loss TSFM conditioner](docs/results/weak_invariant_loss_ablation.md)
+  records the matched objective ablation, its source-gate improvement, and its
+  subsequent reserved-Lorenz failure. The
+  [complete experiment walkthrough](docs/results/weak_invariant_experiment_walkthrough.md)
+  explains the data split, architecture, curriculum, gates, and interpretation.
+- [TSFM and integral-matching survival extension](docs/results/tsfm_integral_survival_extension.md)
+  records fixed-prefix Panda/Chronos references, the pooled integral estimator,
+  and the provenance-preserving extension of the noisy survival plot.
 - [Migration runbook](docs/migration.md) describes how to reconstruct the work
   on a larger machine and transfer the full generated artifacts.
 - [Inverse dataset benchmark](docs/next_sindy_dataset_benchmark.md) is the
   agent-ready next task: run strong, weak, and weighted weak SINDy on Panda and
   CTF4Science datasets.
 
-Compact, publication-safe result tables and SVG figures are tracked under
-[`artifacts/v2`](artifacts/v2/README.md). Raw trajectories, checkpoints,
-predictions, host manifests, and model weights remain outside Git and are
-covered by the migration runbook.
+Compact, publication-safe result tables and selected figures are tracked under
+[`artifacts/v2`](artifacts/v2/README.md), with the amortized-conditioner gate
+records under [`artifacts/amortized_sindy`](artifacts/amortized_sindy/README.md).
+Raw trajectories, checkpoints, predictions, host manifests, and model weights
+remain outside Git and are covered by the migration runbook.
 
 ## Installation
 
@@ -84,6 +96,39 @@ The smoke configuration runs every method on a tiny dataset and verifies finite 
 ```bash
 lorenz63-v2-smoke --output-root runs/v2_smoke
 ```
+
+## Experimental zero-shot SINDy track
+
+The next research track pretrains a context encoder to emit one fixed sparse
+coefficient matrix, then forecasts without target-time regression or gradient
+updates. The current v1 scaffold includes frozen checkpoint contracts, a
+CTF4Science prediction adapter, truth-separated evaluation commands, and a
+held-out-parameter mechanism smoke:
+
+```bash
+amortized-sindy-v1-smoke --epochs 120
+```
+
+See [the amortized zero-shot SINDy protocol](docs/amortized_zero_shot_sindy.md).
+The raw-context GRU and Panda, Chronos, and TabPFN coefficient heads failed the
+source-family gate even though native Panda forecasting was strong. An
+equation-native ODEFormer-to-SINDy conditioner passed the source gate without
+target-time optimization or sparse regression, but failed the frozen reserved
+Lorenz gate because one rollout diverged. A subsequent stronger reranker and
+its open-data CTF4Science evaluation are labeled post-hoc exploratory, not a
+confirmatory zero-shot result. The CTF Panda adapter was also audited: its
+default MLM checkpoint creates a random forecast head, while a reproducible
+control using Panda's released forecast checkpoint scored `-1.17427` on open
+`ODE_Lorenz` because its positive short/reconstruction scores did not survive
+the long chaotic horizons. See the
+  [foundation gate results](docs/results/amortized_foundation_gate.md).
+
+The later loss-level experiment succeeded on the source gate: replacing the
+pointwise residual with a derivative-free weak residual reached MSE `1.19212`,
+and adding tapered Birkhoff-MMD reached `1.19057`, both ahead of raw GRU
+`1.21226`. The frozen winner nevertheless scored 1.046 times the constant-field
+error on reserved Lorenz, so it was not advanced to CTF4Science. See the
+[weak/occupation-measure loss results](docs/results/weak_invariant_loss_ablation.md).
 
 ## Reproduce one weighted weak-SINDy run
 

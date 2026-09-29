@@ -47,6 +47,15 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "steps_per_epoch": 50, "windows_per_update": 32, "window_steps": 25,
         "learning_rate": 0.05, "weight_decay": 0.0, "grad_clip": 10.0,
     },
+    "integral_matching": {
+        "quadrature": "cumulative_trapezoid",
+        "minimum_denominator": 1e-12,
+        "parameter_bounds": {
+            "sigma": [0.0, 50.0],
+            "rho": [0.0, 100.0],
+            "beta": [0.0, 20.0],
+        },
+    },
     "pinn": {
         "hidden_dim": 128, "depth": 3, "activation": "tanh", "dtype": "float32",
         "epochs": 100, "steps_per_epoch": 50, "windows_per_update": 32, "quadrature_points": 16,

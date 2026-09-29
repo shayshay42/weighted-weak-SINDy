@@ -1,0 +1,71 @@
+{
+  "schema": "amortized-sindy-birkhoff-weak-source-ablation-config-v1",
+  "status": "frozen_before_source_validation_run",
+  "information_contract": {
+    "context_steps": 128,
+    "target_optimizer_steps": 0,
+    "target_sparse_regression_solves": 0,
+    "target_future_available_to_conditioner": false,
+    "selection_data": "synthetic-multifamily-v1/source_validation",
+    "excluded_evaluation_data": [
+      "synthetic-multifamily-v1/lorenz_heldout",
+      "CTF4Science/ODE_Lorenz"
+    ]
+  },
+  "foundation_encoder": {
+    "backend": "panda_patchtst",
+    "weights": "GilpinLab/panda",
+    "revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "weights_sha256": "48ded0b494c8882f772564795938bd43cc93e6d8c3a7e36e4c9ebfbf4b331280",
+    "frozen": true,
+    "pretraining_exposure": "unknown"
+  },
+  "sindy": {
+    "state_dimension": 3,
+    "library_degree": 2,
+    "library_terms": 10,
+    "coefficient_count": 30,
+    "support_threshold": 0.5
+  },
+  "conditioner": {
+    "ordered_prefix_encoder": "gru",
+    "birkhoff": {
+      "domain": "sample_level_sindy_library",
+      "scales": [1.0, 0.5],
+      "quadrature": "trapezoid",
+      "weight": "exp(-1/(s*(1-s)))",
+      "statistics": ["weighted_mean", "weighted_variance"]
+    },
+    "weak_tokens": {
+      "window_steps": 33,
+      "stride_steps": 16,
+      "legendre_modes": 2,
+      "test_function": "exp(4-1/(s*(1-s)))",
+      "token_fields": ["library_integrals", "state_rhs", "window_metadata"],
+      "transformer_layers": 1,
+      "attention_heads": 4
+    },
+    "bottleneck_size": 128
+  },
+  "matched_variants": [
+    "ordered_foundation",
+    "birkhoff",
+    "weak_tokens",
+    "birkhoff_weak_tokens"
+  ],
+  "training": {
+    "epochs": 400,
+    "learning_rate": 0.001,
+    "eval_interval": 5,
+    "seed": 91,
+    "devices": ["cuda:0", "cuda:2", "cuda:3"],
+    "parallel_hardware_only": true,
+    "selection_metric": "source_validation_rollout_mse"
+  },
+  "gate": {
+    "must_beat_constant_field": true,
+    "must_beat_raw_gru": true,
+    "reference_raw_gru_mse": 1.2122557163238525,
+    "ctf_run_allowed_only_after_source_selection": true
+  }
+}

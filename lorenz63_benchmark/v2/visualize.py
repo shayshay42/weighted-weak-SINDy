@@ -30,6 +30,7 @@ from .contracts import (
     METHODS,
     PARAMETRIC_TRACK,
     PINN_TRACK,
+    PRETRAINED_TRACK,
     PRIMARY_TRACK,
     TRACK_LABELS,
 )
@@ -38,12 +39,17 @@ from .plot import _method_order
 
 
 TRACKS = (PRIMARY_TRACK, PARAMETRIC_TRACK, PINN_TRACK)
-KIND_MARKERS = {"node": "o", "sindy": "s", "parametric": "D", "pinn": "^", "oracle": "*"}
+OVERLAY_TRACKS = (*TRACKS, PRETRAINED_TRACK)
+KIND_MARKERS = {
+    "node": "o", "sindy": "s", "parametric": "D", "pinn": "^",
+    "oracle": "*", "pretrained": "P",
+}
 NOISE_DISPLAY = {0.0: "0", 0.001: "0.1%", 0.01: "1%", 0.05: "5%"}
 TRACK_LINESTYLES = {
     PRIMARY_TRACK: "-",
     PARAMETRIC_TRACK: (0, (6, 2.2)),
     PINN_TRACK: (0, (1.2, 1.7)),
+    PRETRAINED_TRACK: (0, (5.0, 1.8, 1.2, 1.8)),
 }
 
 
@@ -478,7 +484,7 @@ def plot_forecast_survival_overlay(
             group, times, resamples=resamples, seed=seed
         )
         methods: list[str] = []
-        for track in TRACKS:
+        for track in OVERLAY_TRACKS:
             available = [
                 method for method in summaries
                 if METHODS[method].track == track
@@ -503,7 +509,9 @@ def plot_forecast_survival_overlay(
         axis.set_xlim(0.0, maximum)
         axis.set_ylim(-0.02, 1.02)
         axis.set_xlabel(r"Forecast time $\lambda_{\max}t$ (Lyapunov times)")
-        axis.set_title(f"Training noise {NOISE_DISPLAY.get(noise, noise)}", fontsize=11)
+        axis.set_title(
+            f"Benchmark training noise {NOISE_DISPLAY.get(noise, noise)}", fontsize=11
+        )
         _despine(axis)
     axes[0].set_ylabel(r"Fraction of forecasts with $E(t) \leq 0.4$")
 
@@ -512,7 +520,8 @@ def plot_forecast_survival_overlay(
             [0], [0], color="#222222", linewidth=2.2,
             linestyle=TRACK_LINESTYLES[track], label=TRACK_LABELS[track],
         )
-        for track in TRACKS
+        for track in OVERLAY_TRACKS
+        if any(METHODS[method].track == track for method in plotted_methods)
     ]
     method_handles = [
         Line2D(
@@ -527,7 +536,7 @@ def plot_forecast_survival_overlay(
         title="Information track (line style)",
         loc="upper center",
         bbox_to_anchor=(0.5, 0.925),
-        ncol=3,
+        ncol=len(track_handles),
         fontsize=8.5,
         title_fontsize=8.5,
     )
@@ -543,12 +552,25 @@ def plot_forecast_survival_overlay(
         columnspacing=1.5,
         handlelength=3.0,
     )
+    if any(METHODS[method].track == PRETRAINED_TRACK for method in plotted_methods):
+        figure.text(
+            0.5,
+            0.225,
+            (
+                "Zero-shot TSFM references are repeated across panels: they receive a fixed "
+                "512-sample clean test prefix and do not train on the panel's noisy split."
+            ),
+            ha="center",
+            va="center",
+            fontsize=8.2,
+            color="#333333",
+        )
     figure.suptitle(
         "Valid-prediction-time survival across methods and noisy training sets",
         fontsize=15,
         y=0.985,
     )
-    figure.subplots_adjust(left=0.065, right=0.99, top=0.82, bottom=0.27, wspace=0.14)
+    figure.subplots_adjust(left=0.065, right=0.99, top=0.82, bottom=0.30, wspace=0.14)
     _save_figure(
         figure,
         output_dir,
@@ -558,8 +580,10 @@ def plot_forecast_survival_overlay(
         title="All-method VPT survival across noisy training levels",
         role="main",
         description=(
-            "All methods overlaid at 0.1%, 1%, and 5% training noise; color identifies "
-            "method and line style identifies information-equivalent track."
+            "All methods overlaid at 0.1%, 1%, and 5% benchmark-training noise; color "
+            "identifies method and line style identifies the information track. Pretrained "
+            "zero-shot references use a fixed 512-sample clean test prefix and are repeated "
+            "across panels rather than trained on the noisy split."
         ),
     )
 
@@ -1332,6 +1356,7 @@ def generate_survival_overlay(
             PRIMARY_TRACK: "solid",
             PARAMETRIC_TRACK: "dashed",
             PINN_TRACK: "dotted",
+            PRETRAINED_TRACK: "dash-dot",
         },
         "bootstrap": {"resamples": resamples, "seed": seed},
         "inputs": {

@@ -17,7 +17,11 @@ from .artifacts import (
 )
 
 
-GPU_METHODS = {name for name, contract in METHODS.items() if contract.kind in {"node", "pinn", "parametric"}}
+GPU_METHODS = {
+    name
+    for name, contract in METHODS.items()
+    if contract.kind in {"node", "pinn", "parametric"} and name != "lorenz_integral"
+}
 CPU_METHODS = set(METHODS) - GPU_METHODS
 
 

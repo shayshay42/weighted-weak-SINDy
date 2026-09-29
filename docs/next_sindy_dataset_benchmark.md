@@ -36,6 +36,29 @@ access, while SINDy fits each target from its observed trajectory.
    integration-by-parts equations.
 4. `sindy_weak_weighted`: exactly the weak implementation with only the
    endpoint temporal weights changed.
+5. `sindy_amortized_zero_shot`: a source-pretrained context encoder that emits
+   one sparse coefficient matrix without target-time optimization. Keep this in
+   a separate adaptation class until the protocol in
+   [`amortized_zero_shot_sindy.md`](amortized_zero_shot_sindy.md) passes its
+   synthetic and held-out-family gates.
+
+The amortized pilot established the mechanism, but the raw-context GRU and the
+Panda, Chronos, and source-only TabPFN coefficient conditioners failed the
+source-family gate. Native Panda forecasting performed strongly, which isolates
+the coefficient bridge rather than the forecasting backbone as the failure.
+An equation-native ODEFormer-to-SINDy conditioner passed the source gate but
+failed the frozen reserved-Lorenz gate because one trajectory diverged. A later
+SINDy-space reranker is retained only as post-hoc exploratory evidence; on the
+open CTF4Science data it produced 11 of 12 component scores and one explicit
+method failure. The exact outcomes are in
+[`results/amortized_foundation_gate.md`](results/amortized_foundation_gate.md).
+Official Panda and `ctftabpfn` remain direct-forecast comparators, not SINDy
+conditioners. The official CTF Panda configuration is not usable as shipped
+because it loads an MLM checkpoint with a newly initialized forecast head. A
+post-hoc control using Panda's released forecast checkpoint scored `-1.17427`
+on open `ODE_Lorenz`: short/reconstruction components were positive, while all
+five long-time components were strongly negative. Keep both the adapter defect
+and corrected-checkpoint control in the benchmark record.
 
 Use three explicit library tiers rather than silently tuning unlimited
 expressivity:

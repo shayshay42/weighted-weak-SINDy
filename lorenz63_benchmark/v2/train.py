@@ -27,11 +27,15 @@ def _method_config(config: dict[str, Any], method: str) -> dict[str, Any]:
         common["sindy"] = config["sindy"]
     elif method.startswith("lorenz_ad"):
         common["parametric"] = config["parametric"]
+    elif method == "lorenz_integral":
+        common["integral_matching"] = config["integral_matching"]
     elif method.startswith("pinn_") or method == "solver_oracle":
         common["pinn"] = config["pinn"]
         common["system"] = config["system"]
     elif method == "panda_zero_shot":
         common["panda"] = config["panda"]
+    elif method == "chronos_zero_shot":
+        common["chronos"] = config["chronos"]
     return common
 
 

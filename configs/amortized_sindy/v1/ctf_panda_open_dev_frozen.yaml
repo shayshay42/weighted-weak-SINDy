@@ -1,0 +1,20 @@
+dataset:
+  name: ODE_Lorenz
+  pair_id: 1-9
+model:
+  name: Panda
+  zero_shot: true
+  weights: GilpinLab/panda_mlm
+  normalize: false
+  context_length: -1
+  device: cuda:3
+  seed: 0
+provenance:
+  ctf4science_revision: 36043739892a8cd081941e9c6a57638369750722
+  ctf_panda_revision: 6371e269633523d07e2713aa84be7a846293b988
+  panda_source_revision: 450aa4154c833fd8c720fe0cc8fc0232cca23ac6
+  panda_checkpoint_revision: ad305089edeade49daf11be740ee2f4cafc839fe
+  adaptation_class: target-time-zero-update-direct-forecast
+  pretraining_exposure: unknown
+  runtime_adapter_change: read model.device instead of hardcoding device_map=cpu; seed NumPy and PyTorch from model.seed
+  known_adapter_issue: panda_mlm does not contain the PatchTSTForPrediction projection head, so that head is newly initialized

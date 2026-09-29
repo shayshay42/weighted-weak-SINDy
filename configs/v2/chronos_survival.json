@@ -1,0 +1,21 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "data": {
+    "noise_levels": [0.0]
+  },
+  "evaluation": {
+    "forecast_context_steps": 512,
+    "pretrained_evaluation_lyapunov_times": 5.0
+  },
+  "aggregation": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 2026,
+    "require_complete_matrix": true,
+    "require_complete_ablation": false
+  },
+  "final": {
+    "data_seeds": [1, 2, 3, 4, 5],
+    "model_seeds": [0],
+    "methods": ["chronos_zero_shot"]
+  }
+}

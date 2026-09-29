@@ -1,0 +1,140 @@
+{
+  "schema": "amortized-sindy-weak-invariant-result-snapshot-v1",
+  "executed_on": "2026-08-24",
+  "execution": {
+    "host_class": "emad-cpu",
+    "public_base_commit": "d826c5dca0ee30c72f0348d360a35dd525e2a737",
+    "execution_commit": "d1b8fe3f29b4e8c4a5879fdf11d6fd1de5f81ae0",
+    "execution_source_bundle": {
+      "path": "weak_invariant_execution.bundle",
+      "sha256": "46b1a0637ebbfdf5ba9b8d0ebc1eb54ae1753ba00101013966416cb5ff60c4e7",
+      "required_base_commit": "d826c5dca0ee30c72f0348d360a35dd525e2a737",
+      "bundled_ref": "refs/remotes/emad/weak-invariant-v2"
+    },
+    "source_tree_observed_clean_at_launch": true,
+    "historical_launcher_enforced_untracked_cleanliness": false,
+    "postrun_full_porcelain_clean": true,
+    "launcher_hardened_after_execution": true,
+    "ctf_predictor_gate_enforced_after_execution": true,
+    "pytorch_threads": 32,
+    "source_ablation_manifest_sha256": "dd46b985cb60da739abf74ee3333f09ac6a04b38c0e3668bb07243e4092403cf",
+    "source_config_sha256": "ce578cfddf782316bc9cc765d44c3eca7a70aadbebd8ffde82ecc6f62353b718",
+    "heldout_gate_config_sha256": "0d744ff797ee4e26a79f20acb165b2d5bdf50b5b19491ecfef82438f7bcda5fb"
+  },
+  "runtime_amendment": {
+    "trigger_commit": "d92cb1cc73d68df5219428690a7e40e55f3a9aa2",
+    "reason": "The first attempted arm produced non-finite validation rollouts that the original history serializer encoded as non-standard JSON Infinity.",
+    "resolution": "Non-finite validation evaluations are explicit null-valued records; training may continue, and only finite validation checkpoints can be selected.",
+    "hyperparameters_changed": false,
+    "target_evaluation_data_used": false
+  },
+  "information_contract": {
+    "source_selection_data": "synthetic-multifamily-v1/source_validation",
+    "target_evaluation_data_used_for_source_selection": false,
+    "heldout_truth_available_only_to_evaluator": true,
+    "target_optimizer_steps": 0,
+    "target_sparse_regression_solves": 0,
+    "foundation_adaptation_label": "target-time-zero-update",
+    "foundation_pretraining_exposure": "unknown",
+    "strict_dataset_zero_shot": false
+  },
+  "foundation_encoder": {
+    "backend": "panda_patchtst",
+    "model_id": "GilpinLab/panda",
+    "revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "weights_sha256": "48ded0b494c8882f772564795938bd43cc93e6d8c3a7e36e4c9ebfbf4b331280",
+    "pooling": "channel_patch_mean_flatten",
+    "context_steps": 128,
+    "frozen": true
+  },
+  "source_inputs": {
+    "dataset_manifest_sha256": "865d0cbb6b748a1e59bf54ec64e8c04907316b2aeee7a905494cc8cb8bafa4a1",
+    "source_train_sha256": "2acb73f364a5f5fb65d4c0a3794ae744ae0382f98b98c81fa8dc3fc452798ded",
+    "source_validation_sha256": "3c7c50a47ec967aca448a75838cb8e0b0c05c7e5820803b67cdcb9718dace4a0",
+    "source_embeddings_sha256": "cc6a8e22674ee1fcc502f54ae6573ce81f91cf96971731c543ff2ead5bcbb31b",
+    "source_validation_embeddings_sha256": "3de5d9c82bd4d9a73098a0119d7070d059cdd139c653317321b714daad624cbb",
+    "source_embedding_manifest_sha256": "8246ce7e07c26e54b6d518e4a451964bd0fa2e80f59b1bf3c0ff1be01746b738",
+    "source_validation_embedding_manifest_sha256": "bfa36e9a9e4bd9c90c604fcabcd44b58e4b8098edc995dd7b9ac96c96bbef5f5",
+    "panda_weights_sha256": "48ded0b494c8882f772564795938bd43cc93e6d8c3a7e36e4c9ebfbf4b331280"
+  },
+  "source_results": [
+    {
+      "variant": "strong_control",
+      "source_validation_rollout_mse": 1.3458176851272583,
+      "best_epoch": 5,
+      "stopped_epoch": 185,
+      "stop_reason": "nonfinite_source_loss",
+      "beats_raw_gru": false
+    },
+    {
+      "variant": "weak_form",
+      "source_validation_rollout_mse": 1.1921215057373047,
+      "best_epoch": 35,
+      "stopped_epoch": 250,
+      "stop_reason": "nonfinite_source_loss",
+      "beats_raw_gru": true
+    },
+    {
+      "variant": "strong_birkhoff_mmd",
+      "source_validation_rollout_mse": 1.3458176851272583,
+      "best_epoch": 5,
+      "stopped_epoch": 180,
+      "stop_reason": "nonfinite_source_loss",
+      "beats_raw_gru": false
+    },
+    {
+      "variant": "weak_birkhoff_mmd",
+      "source_validation_rollout_mse": 1.190571665763855,
+      "best_epoch": 260,
+      "stopped_epoch": 284,
+      "stop_reason": "nonfinite_source_loss",
+      "beats_raw_gru": true
+    }
+  ],
+  "source_baselines": {
+    "constant_field_mse": 1.644203782081604,
+    "raw_gru_mse": 1.2122557163238525
+  },
+  "source_selection": {
+    "selected_variant": "weak_birkhoff_mmd",
+    "selected_checkpoint_sha256": "5c91c3a54b1e30c6aa83ec895780489e0d65b9f2cfc3374cc07e1456ed1b1bee",
+    "selected_source_validation_rollout_mse": 1.190571665763855,
+    "source_gate_passed": true
+  },
+  "heldout_lorenz": {
+    "trajectory_count": 16,
+    "group_count": 8,
+    "context_sha256": "e87c469733b8ecdf5dfdffa6b6397b1613185078c24e25131d78bf78592b9e3b",
+    "embedding_sha256": "58c1c369d956b7ef16a177d1636ba410ba72612335efe4ca664f86e6bb8a957b",
+    "embedding_manifest_sha256": "f2e33d9fab9e4ebdeceaa7f0eef651bc69abf1287cdc3d3a69de8651697f077b",
+    "inference_manifest_sha256": "2189066ddaf1c6cef67ea51397875f14248c6c4e771c16c141b391325c4f7544",
+    "predictions_sha256": "1a5924a3cc63370e38838fe4e140728f18fab199664cd6be75064234e5c48f07",
+    "truth_sha256": "2ccc602a5fa09ef33d961b1e81e72a2203665f25b9e9437b82bc7f63cf78b3fb",
+    "hidden_systems_sha256": "86ac25c2bfc0f7f4d96b9dd0c8c50f8efeaf74da06bdb741bd7a0cd2f091f51b",
+    "evaluation_manifest_sha256": "1f4ebf7eeb3497ace379f38534cdacc4acff460f4ca7ee04903de6f71e84fd3a",
+    "trajectory_metrics_sha256": "aab1fdbd9fef0898901fa4dd7f61f54140c4fd85476d5c1353801e8a16d3c9c7",
+    "metrics": {
+      "all_predictions_finite": true,
+      "mean_normalized_mse": 2.3864337962630358,
+      "median_normalized_mse": 2.397634313022288,
+      "mean_constant_field_normalized_mse": 2.2815299919042915,
+      "relative_mse_vs_constant_field": 1.0459795859493328,
+      "mean_coefficient_relative_error": 1.8823007282671764,
+      "mean_support_f1": 0.5535655385169116,
+      "mean_within_group_coefficient_variation": 0.7537711095240214
+    },
+    "gate": {
+      "requires_all_predictions_finite": true,
+      "requires_relative_mse_vs_constant_field_strictly_less_than": 1.0,
+      "passed": false
+    }
+  },
+  "ctf4science": {
+    "predictor_gate_schema": "amortized-sindy-ctf-advancement-gate-v1",
+    "advancement_gate_manifest": "weak_invariant_ctf_advancement_gate.json",
+    "advancement_gate_manifest_sha256": "038dc90e30df7391208373c929e842cc273dcb82fecd17b2bca49e6a09923d28",
+    "authorized": false,
+    "advanced": false,
+    "reason": "The frozen reserved-Lorenz gate failed; no CTF4Science predictions or scores were generated."
+  }
+}

@@ -13,7 +13,7 @@ from .artifacts import (
     environment_snapshot, sha256_file, sha256_json, source_hash, utc_now,
 )
 from .config import load_config
-from .contracts import PINN_TRACK
+from .contracts import PARAMETRIC_TRACK, PINN_TRACK, PRETRAINED_TRACK
 from .data import load_split
 from .metrics import (
     distribution_metrics, interval_nrmse_auc, learned_lyapunov_metrics,
@@ -135,6 +135,16 @@ def evaluate_run(
         stop = min(stop, forecast_times.size - 1)
         forecast_times = forecast_times[: stop + 1]
         forecast_truth = forecast_truth[:, : stop + 1]
+    elif adapter.track == PRETRAINED_TRACK:
+        maximum_lt = float(
+            config["evaluation"].get(
+                "pretrained_evaluation_lyapunov_times", forecast_times[-1] * largest
+            )
+        )
+        stop = int(np.searchsorted(largest * forecast_times, maximum_lt, side="left"))
+        stop = min(stop, forecast_times.size - 1)
+        forecast_times = forecast_times[: stop + 1]
+        forecast_truth = forecast_truth[:, : stop + 1]
 
     started = time.perf_counter()
     forecast_prediction = adapter.forecast_from_context(context_states, forecast_times)
@@ -212,7 +222,7 @@ def evaluate_run(
     }
     parameter_error = float("nan")
     coefficient_error = float("nan")
-    if method.startswith("lorenz_ad"):
+    if adapter.track == PARAMETRIC_TRACK:
         parameter_error = relative_parameter_error(parameters, system)
     elif method.startswith("sindy_"):
         coefficient_error = relative_coefficient_error(

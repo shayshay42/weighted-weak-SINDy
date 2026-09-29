@@ -57,6 +57,14 @@ METHODS = {
         "lorenz_ad_tapered", "Endpoint-tapered AD Lorenz", PARAMETRIC_TRACK,
         ("observed_states", "observation_times", "lorenz_equation_form"), "parametric", True, "#D55E00"
     ),
+    "lorenz_integral": MethodContract(
+        "lorenz_integral", "Integral-matching Lorenz", PARAMETRIC_TRACK,
+        (
+            "observed_states", "observation_times", "lorenz_equation_form",
+            "parameter_bounds",
+        ),
+        "parametric", True, "#AA4499",
+    ),
     "pinn_strong": MethodContract(
         "pinn_strong", "Strong-form PINN", PINN_TRACK,
         ("initial_states", "lorenz_equation_form", "canonical_parameters"), "pinn", False, "#0072B2"
@@ -77,11 +85,16 @@ METHODS = {
         "panda_zero_shot", "Panda (pretrained, zero-shot)", PRETRAINED_TRACK,
         ("external_pretraining_corpus", "observed_state_context"), "pretrained", False, "#117733"
     ),
+    "chronos_zero_shot": MethodContract(
+        "chronos_zero_shot", "Chronos-T5 (pretrained, zero-shot)", PRETRAINED_TRACK,
+        ("external_pretraining_corpus", "observed_state_context"), "pretrained", False, "#44AA99"
+    ),
 }
 
-# Optional external models must be enabled explicitly so archived v2 configurations
-# retain their original expected run matrix.
-CORE_METHODS = tuple(method for method in METHODS if method != "panda_zero_shot")
+# Extensions must be enabled explicitly so archived v2 configurations retain
+# their original expected run matrix.
+OPTIONAL_METHODS = {"lorenz_integral", "panda_zero_shot", "chronos_zero_shot"}
+CORE_METHODS = tuple(method for method in METHODS if method not in OPTIONAL_METHODS)
 
 TRACK_LABELS = {
     PRIMARY_TRACK: "State-only dynamics learning",
@@ -95,9 +108,9 @@ DEFAULT_ORDER = {
         "sindy_strong", "sindy_weighted", "sindy_weak", "sindy_weak_weighted",
         "node_strong", "node_weak", "node_soft_dtw",
     ],
-    PARAMETRIC_TRACK: ["lorenz_ad", "lorenz_ad_tapered"],
+    PARAMETRIC_TRACK: ["lorenz_integral", "lorenz_ad", "lorenz_ad_tapered"],
     PINN_TRACK: ["solver_oracle", "pinn_strong", "pinn_weak", "pinn_weak_tapered"],
-    PRETRAINED_TRACK: ["panda_zero_shot"],
+    PRETRAINED_TRACK: ["panda_zero_shot", "chronos_zero_shot"],
 }
 
 

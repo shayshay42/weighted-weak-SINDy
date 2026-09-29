@@ -1,0 +1,29 @@
+{
+  "schema": "amortized-sindy-heldout-lorenz-gate-config-v1",
+  "status": "frozen_before_heldout_lorenz_inference",
+  "frozen_on": "2026-08-24",
+  "source_selection": {
+    "ablation_manifest_sha256": "dd46b985cb60da739abf74ee3333f09ac6a04b38c0e3668bb07243e4092403cf",
+    "selected_variant": "weak_birkhoff_mmd",
+    "selected_checkpoint_sha256": "5c91c3a54b1e30c6aa83ec895780489e0d65b9f2cfc3374cc07e1456ed1b1bee",
+    "source_validation_rollout_mse": 1.190571665763855,
+    "source_gate_passed": true
+  },
+  "heldout_inputs": {
+    "dataset_manifest_sha256": "865d0cbb6b748a1e59bf54ec64e8c04907316b2aeee7a905494cc8cb8bafa4a1",
+    "context_sha256": "e87c469733b8ecdf5dfdffa6b6397b1613185078c24e25131d78bf78592b9e3b",
+    "truth_sha256": "2ccc602a5fa09ef33d961b1e81e72a2203665f25b9e9437b82bc7f63cf78b3fb",
+    "hidden_systems_sha256": "86ac25c2bfc0f7f4d96b9dd0c8c50f8efeaf74da06bdb741bd7a0cd2f091f51b"
+  },
+  "information_contract": {
+    "truth_available_to_inference_process": false,
+    "target_optimizer_steps": 0,
+    "target_sparse_regression_solves": 0,
+    "heldout_metrics_used_for_tuning": false
+  },
+  "advance_to_ctf4science_only_if": {
+    "inference_completes": true,
+    "all_predictions_finite": true,
+    "relative_mse_vs_constant_field_strictly_less_than": 1.0
+  }
+}

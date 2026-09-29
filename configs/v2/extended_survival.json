@@ -1,0 +1,35 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "plot_order": {
+    "state_only_dynamics": [
+      "sindy_weighted",
+      "sindy_strong",
+      "sindy_weak_weighted",
+      "sindy_weak",
+      "node_strong",
+      "node_weak",
+      "node_soft_dtw"
+    ],
+    "known_form_hidden_parameters": [
+      "lorenz_integral",
+      "lorenz_ad",
+      "lorenz_ad_tapered"
+    ],
+    "known_physics_forward_surrogate": [
+      "solver_oracle",
+      "pinn_strong",
+      "pinn_weak",
+      "pinn_weak_tapered"
+    ],
+    "pretrained_sequence_forecasting": [
+      "panda_zero_shot",
+      "chronos_zero_shot"
+    ]
+  },
+  "aggregation": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 2026,
+    "require_complete_matrix": true,
+    "require_complete_ablation": false
+  }
+}

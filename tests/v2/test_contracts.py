@@ -53,6 +53,7 @@ def test_train_cli_has_no_test_argument() -> None:
 def test_hidden_physics_is_removed_from_non_pinn_trainers() -> None:
     config = copy.deepcopy(DEFAULT_CONFIG)
     config["panda"] = {}
+    config["chronos"] = {}
     for method, contract in METHODS.items():
         sanitized = _method_config(config, method)
         if contract.track in {PRIMARY_TRACK, PARAMETRIC_TRACK}:
@@ -60,11 +61,14 @@ def test_hidden_physics_is_removed_from_non_pinn_trainers() -> None:
         elif contract.track == PINN_TRACK:
             assert "system" in sanitized
         elif contract.track == PRETRAINED_TRACK:
-            assert set(sanitized) == {"schema", "evaluation", "normalization", "panda"}
+            expected = "panda" if method == "panda_zero_shot" else "chronos"
+            assert set(sanitized) == {"schema", "evaluation", "normalization", expected}
 
 
 def test_external_pretrained_methods_require_explicit_config_enablement() -> None:
     assert "panda_zero_shot" not in configured_methods(DEFAULT_CONFIG)
+    assert "chronos_zero_shot" not in configured_methods(DEFAULT_CONFIG)
+    assert "lorenz_integral" not in configured_methods(DEFAULT_CONFIG)
     config = copy.deepcopy(DEFAULT_CONFIG)
     config["final"]["methods"] = ["sindy_weak", "panda_zero_shot"]
     assert configured_methods(config) == ["sindy_weak", "panda_zero_shot"]

@@ -1,0 +1,9 @@
+dataset:
+  name: ODE_Lorenz
+  pair_id: all
+model:
+  name: AmortizedSINDyZeroShot
+  zero_shot: true
+  checkpoint: ../../../artifacts/amortized_sindy/v1/source_pretrained.pt
+  context_length: -1
+  device: cpu

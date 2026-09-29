@@ -63,13 +63,20 @@ def fit_method(
         )
     if kind == "parametric":
         from .parametric import train_parametric
-        return train_parametric(method, train_split, validation_split, config, model_seed, output_dir, device)
+        return train_parametric(
+            method, train_split, validation_split, config, model_seed, output_dir, device,
+            trajectory_count=trajectory_count,
+        )
     if kind == "pinn":
         from .pinn import train_pinn
         return train_pinn(method, train_split, validation_split, config, model_seed, output_dir, device)
     if kind == "pretrained":
-        from .panda import create_panda_checkpoint
-        return create_panda_checkpoint(train_split, config, output_dir)
+        if method == "panda_zero_shot":
+            from .panda import create_panda_checkpoint
+            return create_panda_checkpoint(train_split, config, output_dir)
+        if method == "chronos_zero_shot":
+            from .chronos import create_chronos_checkpoint
+            return create_chronos_checkpoint(train_split, config, output_dir)
     if method == "solver_oracle":
         from .oracle import create_oracle
         return create_oracle(config, output_dir)
@@ -97,8 +104,12 @@ def load_method(
         from .pinn import load_pinn
         return load_pinn(checkpoint_path, device)
     if kind == "pretrained":
-        from .panda import load_panda
-        return load_panda(checkpoint_path, device)
+        if method == "panda_zero_shot":
+            from .panda import load_panda
+            return load_panda(checkpoint_path, device)
+        if method == "chronos_zero_shot":
+            from .chronos import load_chronos
+            return load_chronos(checkpoint_path, device)
     if method == "solver_oracle":
         from .oracle import load_oracle
         return load_oracle(checkpoint_path, internal_step)
