@@ -474,10 +474,10 @@ def _draw_grouped_survival_legend(
     axis.set_ylim(0.0, 1.0)
     axis.axis("off")
 
-    left, right = 0.006, 0.994
-    bottom, top = 0.045, 0.955
+    left, right = 0.004, 0.996
+    bottom, top = 0.025, 0.975
     header_y = 0.80
-    separator_y = 0.665
+    separator_y = 0.645
     border_color = "#303030"
     legend_box = FancyBboxPatch(
         (left, bottom),
@@ -517,8 +517,8 @@ def _draw_grouped_survival_legend(
                 clip_on=False,
             )
 
-        padding = 0.018 * (right - left)
-        sample_width = min(0.035, 0.18 * (track_right - track_left))
+        padding = 0.012 * (right - left)
+        sample_width = min(0.032, 0.16 * (track_right - track_left))
         sample_left = track_left + padding
         sample_right = sample_left + sample_width
         axis.plot(
@@ -532,29 +532,29 @@ def _draw_grouped_survival_legend(
             clip_on=False,
         )
         axis.text(
-            sample_right + 0.010,
+            sample_right + 0.007,
             header_y,
             TRACK_LABELS[track],
             transform=axis.transAxes,
             ha="left",
             va="center",
-            fontsize=7.4,
-            fontweight="semibold",
+            fontsize=8.6,
+            fontweight="bold",
             color="#202020",
         )
 
         track_methods = [method for method in methods if METHODS[method].track == track]
         column_count = 2 if track == PRIMARY_TRACK and len(track_methods) > 4 else 1
         row_count = max(1, int(np.ceil(len(track_methods) / column_count)))
-        content_top = separator_y - 0.115
-        content_bottom = bottom + 0.105
-        row_positions = np.linspace(content_top, content_bottom, row_count)
+        content_top = separator_y - 0.105
+        content_bottom = bottom + 0.080
+        row_positions = np.linspace(content_top, content_bottom, max(4, row_count))
         column_width = (track_right - track_left - 2 * padding) / column_count
         for position, method in enumerate(track_methods):
             column = position // row_count
             row = position % row_count
             item_left = track_left + padding + column * column_width
-            item_sample_width = min(0.034, 0.18 * column_width)
+            item_sample_width = min(0.030, 0.15 * column_width)
             axis.plot(
                 [item_left, item_left + item_sample_width],
                 [row_positions[row], row_positions[row]],
@@ -567,13 +567,13 @@ def _draw_grouped_survival_legend(
                 clip_on=False,
             )
             axis.text(
-                item_left + item_sample_width + 0.008,
+                item_left + item_sample_width + 0.006,
                 row_positions[row],
                 METHODS[method].label,
                 transform=axis.transAxes,
                 ha="left",
                 va="center",
-                fontsize=6.9,
+                fontsize=8.0,
                 color="#202020",
             )
         cursor = track_right
@@ -597,9 +597,9 @@ def plot_forecast_survival_overlay(
           for noise in noises),
     )
     times = np.linspace(0.0, maximum, 121)
-    figure = plt.figure(figsize=(18, 7.2))
+    figure = plt.figure(figsize=(18, 6.7))
     grid = figure.add_gridspec(
-        2, 3, height_ratios=(4.45, 1.55), hspace=0.24, wspace=0.14,
+        2, 3, height_ratios=(4.90, 1.35), hspace=0.16, wspace=0.075,
     )
     axes_list: list[plt.Axes] = []
     for column in range(3):
@@ -639,16 +639,25 @@ def plot_forecast_survival_overlay(
                 plotted_methods.append(method)
         axis.set_xlim(0.0, maximum)
         axis.set_ylim(-0.02, 1.02)
-        axis.set_xlabel(r"Forecast time $\lambda_{\max}t$ (Lyapunov times)")
-        axis.set_title(
-            f"Benchmark training noise {NOISE_DISPLAY.get(noise, noise)}", fontsize=11
+        axis.set_xlabel(
+            r"Forecast time $\lambda_{\max}t$ (Lyapunov times)",
+            fontsize=10.5,
+            labelpad=1,
         )
+        axis.set_title(
+            f"Benchmark training noise {NOISE_DISPLAY.get(noise, noise)}",
+            fontsize=12.2,
+            pad=5,
+        )
+        axis.tick_params(axis="both", labelsize=9.6, pad=2)
         _despine(axis)
-    axes[0].set_ylabel(r"Fraction of forecasts with $E(t) \leq 0.4$")
+    axes[0].set_ylabel(
+        r"Fraction of forecasts with $E(t) \leq 0.4$", fontsize=10.5, labelpad=4
+    )
 
     legend_axis = figure.add_subplot(grid[1, :])
     _draw_grouped_survival_legend(legend_axis, plotted_methods)
-    figure.subplots_adjust(left=0.065, right=0.99, top=0.97, bottom=0.035)
+    figure.subplots_adjust(left=0.058, right=0.995, top=0.975, bottom=0.025)
     _save_figure(
         figure,
         output_dir,

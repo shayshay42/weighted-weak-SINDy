@@ -89,8 +89,8 @@ existing Panda aggregate.
 Compact public artifacts are in
 [`artifacts/v2/tsfm_integral_survival`](../../artifacts/v2/tsfm_integral_survival/README.md).
 The PNG and PDF SHA-256 hashes are respectively
-`42c9f5a3563963171f99546c7fa798cc9a4bd621cd9426d0aaa8453a085b5a87` and
-`57a9f77b7e56902d684d47f405ea7e0e6006d46bdeaada46abd3c53f89801655`.
+`7265920daaa5e8849ca0de68f5b8977d6ba97436eb9b22700d1758ea3151db5b` and
+`94ded9d7cb179b16481be2b3faee6d2d588cfe0fb49907e315d47014c6b80bf0`.
 The publication layout omits a figure-level title and floating annotation; all
 16 method names and information-track line-style mappings share one boxed
 legend below the panels, partitioned into four track columns.
