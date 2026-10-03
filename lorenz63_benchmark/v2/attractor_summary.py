@@ -158,10 +158,11 @@ def generate_attractor_summary(
     selected_runs = run_metrics[np.isclose(run_metrics["noise_level"], noise_level)].copy()
     if selected_runs.empty:
         raise ValueError(f"no runs found for noise level {noise_level:g}")
-    expected_methods = set(METHODS)
-    if set(selected_runs["method"]) != expected_methods:
-        missing = sorted(expected_methods.difference(selected_runs["method"]))
-        raise ValueError(f"prediction summary is missing methods: {missing}")
+    method_names = set(selected_runs["method"].astype(str))
+    unknown_methods = sorted(method_names.difference(METHODS))
+    if unknown_methods:
+        raise ValueError(f"prediction summary contains unknown methods: {unknown_methods}")
+    methods = sorted(method_names)
     manifests = _manifest_map(runs_root)
     missing_runs = sorted(set(selected_runs["run_id"]).difference(manifests))
     if missing_runs:
@@ -223,11 +224,11 @@ def generate_attractor_summary(
         if return_truth_by_seed else np.empty((0, 2), dtype=np.float64)
     )
 
-    method_index = {method: index for index, method in enumerate(sorted(METHODS))}
+    method_index = {method: index for index, method in enumerate(methods)}
     autonomous_methods = [
-        method for method in sorted(METHODS) if METHODS[method].autonomous
+        method for method in methods if METHODS[method].autonomous
     ]
-    for method in sorted(METHODS):
+    for method in methods:
         method_runs = selected_runs[selected_runs["method"] == method].sort_values(
             ["data_seed", "model_seed"]
         )
@@ -269,7 +270,7 @@ def generate_attractor_summary(
     representative_metadata["methods"] = {}
     representative_times: np.ndarray | None = None
     representative_truth_x: np.ndarray | None = None
-    for method in sorted(METHODS):
+    for method in methods:
         matching = selected_runs[
             (selected_runs["method"] == method)
             & (selected_runs["data_seed"] == representative["data_seed"])
@@ -316,7 +317,7 @@ def generate_attractor_summary(
         "histogram_bins": int(histogram_bins),
         "return_pairs_per_run": int(return_pairs_per_run),
         "seed": int(seed),
-        "methods": sorted(METHODS),
+        "methods": methods,
         "autonomous_methods": autonomous_methods,
         "representative": representative_metadata,
     }

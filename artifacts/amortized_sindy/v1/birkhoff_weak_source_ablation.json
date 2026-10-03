@@ -1,0 +1,68 @@
+{
+  "schema": "amortized-sindy-birkhoff-weak-result-snapshot-v1",
+  "executed_on": "2026-08-21",
+  "selection_scope": "synthetic-multifamily-v1/source_validation",
+  "target_evaluation_data_used": false,
+  "target_optimizer_steps": 0,
+  "target_sparse_regression_solves": 0,
+  "inputs": {
+    "dataset_manifest_sha256": "865d0cbb6b748a1e59bf54ec64e8c04907316b2aeee7a905494cc8cb8bafa4a1",
+    "source_train_sha256": "2acb73f364a5f5fb65d4c0a3794ae744ae0382f98b98c81fa8dc3fc452798ded",
+    "source_validation_sha256": "3c7c50a47ec967aca448a75838cb8e0b0c05c7e5820803b67cdcb9718dace4a0",
+    "source_embeddings_sha256": "cc6a8e22674ee1fcc502f54ae6573ce81f91cf96971731c543ff2ead5bcbb31b",
+    "source_validation_embeddings_sha256": "3de5d9c82bd4d9a73098a0119d7070d059cdd139c653317321b714daad624cbb"
+  },
+  "budget": {
+    "epochs": 400,
+    "eval_interval": 5,
+    "learning_rate": 0.001,
+    "seed": 91,
+    "teacher_weight": 0.0
+  },
+  "results": [
+    {
+      "variant": "ordered_foundation",
+      "source_validation_rollout_mse": 1.3486106395721436,
+      "best_epoch": 5,
+      "stopped_epoch": 400,
+      "stop_reason": "training_budget_exhausted",
+      "checkpoint_sha256": "596faf8772f7f943ff6ebee5f26801b31c1559d7d9827a3491bbc06d5636ec5a",
+      "manifest_sha256": "007cdd7446e5778a466ba95b1db6a7fa29bb18a2b99da290b9c14f4064efaee8"
+    },
+    {
+      "variant": "birkhoff",
+      "source_validation_rollout_mse": 1.3701667785644531,
+      "best_epoch": 5,
+      "stopped_epoch": 400,
+      "stop_reason": "training_budget_exhausted",
+      "checkpoint_sha256": "8e2ef7f668c143258ef7fdd601d908c667a3b15a2f7f0ced314f84cb839b949c",
+      "manifest_sha256": "bf773e5f7433e9468cd8cacef4e987c84499331bd774129e8fa220dce8dd9c8d"
+    },
+    {
+      "variant": "weak_tokens",
+      "source_validation_rollout_mse": 1.6486215591430664,
+      "best_epoch": 1,
+      "stopped_epoch": 400,
+      "stop_reason": "training_budget_exhausted",
+      "checkpoint_sha256": "4560a9fde7becb28f7fc18fe402754be6dc764ad38e5355b7783d01e239cd5d6",
+      "manifest_sha256": "19971d3f54180ac53bab1642c1e8a4eb292ea010ce658d62b4d55557ed9bcbe5"
+    },
+    {
+      "variant": "birkhoff_weak_tokens",
+      "source_validation_rollout_mse": 1.648781657218933,
+      "best_epoch": 1,
+      "stopped_epoch": 297,
+      "stop_reason": "nonfinite_source_loss",
+      "checkpoint_sha256": "2cf01c5a91a0b02cd601b7aa9cd321a87225255ea915f91476e895063dab3a5d",
+      "manifest_sha256": "21f3d3c1d250db2a46741f21bd86f213445394df74fe3e3ff5bb5a705c7650bf"
+    }
+  ],
+  "baselines": {
+    "constant_field_mse": 1.644203782081604,
+    "raw_gru_mse": 1.2122557163238525
+  },
+  "selected_variant": "ordered_foundation",
+  "selected_source_validation_rollout_mse": 1.3486106395721436,
+  "source_gate_passed": false,
+  "ctf_evaluation_authorized_by_gate": false
+}

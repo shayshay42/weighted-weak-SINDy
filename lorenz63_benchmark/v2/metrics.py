@@ -56,8 +56,11 @@ def normalized_rmse_auc(error: np.ndarray, times_lt: np.ndarray, horizon_lt: flo
         right = np.searchsorted(times_lt, horizon_lt)
         left = right - 1
         fraction = (horizon_lt - times_lt[left]) / (times_lt[right] - times_lt[left])
-        interpolated = selected_values[:, -1] + fraction * (
-            np.sqrt(np.maximum(error[:, right], 0.0)) - selected_values[:, -1]
+        # The convex form preserves an infinite divergence penalty. The
+        # equivalent difference form produces NaN for inf - inf.
+        interpolated = (
+            (1.0 - fraction) * selected_values[:, -1]
+            + fraction * np.sqrt(np.maximum(error[:, right], 0.0))
         )
         selected_times = np.append(selected_times, horizon_lt)
         selected_values = np.concatenate([selected_values, interpolated[:, None]], axis=1)

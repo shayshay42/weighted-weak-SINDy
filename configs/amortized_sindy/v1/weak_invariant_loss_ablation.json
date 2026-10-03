@@ -1,0 +1,114 @@
+{
+  "schema": "amortized-sindy-weak-invariant-loss-ablation-config-v2",
+  "status": "frozen_hyperparameters_with_runtime_guard_amendment",
+  "execution_amendment": {
+    "recorded_on": "2026-08-24",
+    "trigger_code_commit": "d92cb1cc73d68df5219428690a7e40e55f3a9aa2",
+    "scope": "encode non-finite validation rollouts as explicit standard-JSON evaluation records without changing training or checkpoint selection",
+    "hyperparameters_changed": false,
+    "target_evaluation_data_used": false
+  },
+  "information_contract": {
+    "selection_data": "synthetic-multifamily-v1/source_validation",
+    "target_evaluation_data_used": false,
+    "target_optimizer_steps": 0,
+    "target_sparse_regression_solves": 0,
+    "excluded_evaluation_data": [
+      "synthetic-multifamily-v1/lorenz_heldout",
+      "CTF4Science/ODE_Lorenz"
+    ]
+  },
+  "expected_inputs": {
+    "dataset_manifest_sha256": "865d0cbb6b748a1e59bf54ec64e8c04907316b2aeee7a905494cc8cb8bafa4a1",
+    "source_train_sha256": "2acb73f364a5f5fb65d4c0a3794ae744ae0382f98b98c81fa8dc3fc452798ded",
+    "source_validation_sha256": "3c7c50a47ec967aca448a75838cb8e0b0c05c7e5820803b67cdcb9718dace4a0",
+    "source_embeddings_sha256": "cc6a8e22674ee1fcc502f54ae6573ce81f91cf96971731c543ff2ead5bcbb31b",
+    "source_validation_embeddings_sha256": "3de5d9c82bd4d9a73098a0119d7070d059cdd139c653317321b714daad624cbb",
+    "source_embedding_manifest_sha256": "8246ce7e07c26e54b6d518e4a451964bd0fa2e80f59b1bf3c0ff1be01746b738",
+    "source_validation_embedding_manifest_sha256": "bfa36e9a9e4bd9c90c604fcabcd44b58e4b8098edc995dd7b9ac96c96bbef5f5"
+  },
+  "foundation_encoder": {
+    "backend": "panda_patchtst",
+    "model_id": "GilpinLab/panda",
+    "revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "weights_sha256": "48ded0b494c8882f772564795938bd43cc93e6d8c3a7e36e4c9ebfbf4b331280",
+    "pooling": "channel_patch_mean_flatten",
+    "context_steps": 128,
+    "frozen": true,
+    "pretraining_exposure": "unknown"
+  },
+  "architecture": {
+    "encoder_type": "external_birkhoff_weak",
+    "hybrid_ablation": "no_birkhoff_no_weak",
+    "representation_branches": {
+      "birkhoff": false,
+      "weak_tokens": false
+    },
+    "state_dimension": 3,
+    "library_degree": 2,
+    "library_terms": 10,
+    "coefficient_count": 30,
+    "support_threshold": 0.5,
+    "weak_window_length": 33,
+    "weak_stride_steps": 16,
+    "weak_modes": 2,
+    "external_bottleneck_size": 128,
+    "birkhoff_scales": [1.0, 0.5],
+    "weak_attention_heads": 4,
+    "weak_transformer_layers": 1
+  },
+  "training": {
+    "epochs": 400,
+    "learning_rate": 0.001,
+    "eval_interval": 5,
+    "warmup_epochs": 100,
+    "seed": 91,
+    "cpu_threads": 32,
+    "training_support_mode": "straight_through",
+    "rollout_loss_kind": "pseudo_huber",
+    "rollout_error_cap": 10.0,
+    "birkhoff_mmd_bandwidths": [0.5, 1.0, 2.0, 4.0],
+    "base_loss_weights": {
+      "support": 0.0005,
+      "support_binary": 0.0,
+      "coefficient": 0.000001,
+      "raw_coefficient": 0.0,
+      "consistency": 0.001,
+      "teacher": 0.0
+    }
+  },
+  "variants": [
+    {
+      "name": "strong_control",
+      "context_residual_weight": 0.01,
+      "weak_form_weight": 0.0,
+      "birkhoff_mmd_weight": 0.0
+    },
+    {
+      "name": "weak_form",
+      "context_residual_weight": 0.0,
+      "weak_form_weight": 0.01,
+      "birkhoff_mmd_weight": 0.0
+    },
+    {
+      "name": "strong_birkhoff_mmd",
+      "context_residual_weight": 0.01,
+      "weak_form_weight": 0.0,
+      "birkhoff_mmd_weight": 0.05
+    },
+    {
+      "name": "weak_birkhoff_mmd",
+      "context_residual_weight": 0.0,
+      "weak_form_weight": 0.01,
+      "birkhoff_mmd_weight": 0.05
+    }
+  ],
+  "selection": {
+    "metric": "source_validation_rollout_mse",
+    "lower_is_better": true,
+    "reference_raw_gru_mse": 1.2122557163238525,
+    "must_beat_raw_gru": true,
+    "must_beat_constant_field": true,
+    "target_evaluation_allowed_only_if_gate_passed": true
+  }
+}

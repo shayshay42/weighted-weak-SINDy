@@ -1,0 +1,134 @@
+{
+  "checks": [
+    {
+      "detail": "complete",
+      "name": "dataset_seed_1_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_1_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_1_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_2_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_2_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_2_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_3_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_3_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_3_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_4_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_4_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_4_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_5_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_5_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_5_hashes",
+      "passed": true
+    },
+    {
+      "detail": "runs=780",
+      "name": "complete_run_matrix",
+      "passed": true
+    },
+    {
+      "detail": "runs=160",
+      "name": "complete_sindy_ablation",
+      "passed": true
+    },
+    {
+      "detail": "unique=780, rows=780",
+      "name": "unique_run_ids",
+      "passed": true
+    },
+    {
+      "detail": "manifests=940",
+      "name": "training_artifact_hashes",
+      "passed": true
+    },
+    {
+      "detail": "manifests=940",
+      "name": "evaluation_artifact_hashes",
+      "passed": true
+    },
+    {
+      "detail": "runs=15",
+      "name": "oracle_reaches_valid_horizon",
+      "passed": true
+    },
+    {
+      "detail": "max_relative_error=0.00061026801",
+      "name": "clean_sindy_coefficients",
+      "passed": true
+    },
+    {
+      "detail": "max_relative_error=0.00022064058",
+      "name": "clean_ad_parameters",
+      "passed": true
+    },
+    {
+      "detail": "unstable_nonoracle_runs=0",
+      "name": "oracle_predictions_finite",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "aggregate_complete",
+      "passed": true
+    }
+  ],
+  "completed_at": "2026-07-20T17:31:03.611371+00:00",
+  "note": "Seeded reproducibility is enforced by tests/v2/test_reproducibility.py.",
+  "schema": "lorenz63-acceptance-report-v2",
+  "source_hash": "0cc8cfc38b78b631dc1afa0631b0544a8d78281e756f1f0ca2770f50671fa818",
+  "status": "passed"
+}

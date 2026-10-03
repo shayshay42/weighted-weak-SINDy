@@ -1,0 +1,30 @@
+{
+  "schema": "amortized-sindy-odeformer-frozen-config-v1",
+  "model": {
+    "checkpoint_sha256": "56754040be5aa92ed4767fc43ee2008faa293f87c12b643e66c7df3e1623a5e8",
+    "external_source_url": "https://github.com/sdascoli/odeformer",
+    "external_source_revision": "c9193012ad07a97186290b98d8290d1a177f4609",
+    "license": "MIT",
+    "pretraining_exposure": "unknown"
+  },
+  "inference": {
+    "candidate_count": 8,
+    "sampling_temperature": 0.1,
+    "context_rerank": "observed_context_snmse",
+    "coefficient_adapter": "analytic_degree_2_taylor_at_context_coordinate_mean",
+    "library_dimension": 3,
+    "library_degree": 2,
+    "target_optimizer_steps": 0,
+    "target_sparse_regression_solves": 0
+  },
+  "selection": {
+    "source_gate_manifest_sha256": "360f100026e2435d91d19598367cbfdf696936bc78b648452046bba1234245b4",
+    "source_validation_sha256": "3c7c50a47ec967aca448a75838cb8e0b0c05c7e5820803b67cdcb9718dace4a0",
+    "conditioner_mse": 1.0944698888010267,
+    "raw_gru_mse": 1.2122557163238525,
+    "constant_field_mse": 1.6442036616471711,
+    "all_predictions_finite": true,
+    "gate_passed": true,
+    "target_families_used_for_selection": []
+  }
+}

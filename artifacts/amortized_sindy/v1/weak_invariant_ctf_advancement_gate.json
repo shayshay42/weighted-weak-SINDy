@@ -1,0 +1,17 @@
+{
+  "schema": "amortized-sindy-ctf-advancement-gate-v1",
+  "issued_on": "2026-08-24",
+  "source_ablation_manifest_sha256": "dd46b985cb60da739abf74ee3333f09ac6a04b38c0e3668bb07243e4092403cf",
+  "heldout_gate_config_sha256": "0d744ff797ee4e26a79f20acb165b2d5bdf50b5b19491ecfef82438f7bcda5fb",
+  "selected_checkpoint_sha256": "5c91c3a54b1e30c6aa83ec895780489e0d65b9f2cfc3374cc07e1456ed1b1bee",
+  "heldout_inference_manifest_sha256": "2189066ddaf1c6cef67ea51397875f14248c6c4e771c16c141b391325c4f7544",
+  "heldout_evaluation_manifest_sha256": "1f4ebf7eeb3497ace379f38534cdacc4acff460f4ca7ee04903de6f71e84fd3a",
+  "heldout_gate": {
+    "inference_complete": true,
+    "all_predictions_finite": true,
+    "relative_mse_vs_constant_field": 1.0459795859493328,
+    "relative_mse_vs_constant_field_threshold": 1.0,
+    "passed": false
+  },
+  "ctf4science_authorized": false
+}

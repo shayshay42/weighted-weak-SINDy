@@ -1,0 +1,7 @@
+method,track,source_noise_level,panel_role,source_run_count,forecast_context_steps,mean_restricted_vpt_lt,mean_median_vpt_lt,mean_vpt_censoring_fraction,mean_normalized_squared_error
+lorenz_integral,known_form_hidden_parameters,0.0,matched_training_noise,15,1,8.684327280471264,8.679446119641770,0.0,1.083436350411406
+lorenz_integral,known_form_hidden_parameters,0.001,matched_training_noise,15,1,9.045989898656453,9.046646429060418,0.0,1.052689804535023
+lorenz_integral,known_form_hidden_parameters,0.01,matched_training_noise,15,1,6.950187852793482,6.897337155274155,0.0,1.243358770371610
+lorenz_integral,known_form_hidden_parameters,0.05,matched_training_noise,15,1,4.120456177296060,4.094922853541787,0.0,1.524874843505492
+panda_zero_shot,pretrained_sequence_forecasting,0.0,fixed_clean_prefix_reference,15,512,2.216855785927718,2.125864477911276,0.0,1.160104089022535
+chronos_zero_shot,pretrained_sequence_forecasting,0.0,fixed_clean_prefix_reference,5,512,0.548645331714950,0.443928732282246,0.0015625,1.100617774871905

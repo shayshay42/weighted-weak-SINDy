@@ -1,0 +1,22 @@
+diff --git a/ctf_panda.py b/ctf_panda.py
+--- a/ctf_panda.py
++++ b/ctf_panda.py
+@@ -32,6 +32,10 @@ class PandaModel:
+         """
+         # Load configuration parameters
+         self.config = config
++        seed = int(self.config['model'].get('seed', 0))
++        np.random.seed(seed)
++        torch.manual_seed(seed)
++        torch.cuda.manual_seed_all(seed)
+         self.pair_id = pair_id
+         self.dataset_name = config['dataset']['name']
+         self.pair_id = pair_id
+@@ -62,7 +62,7 @@ class PandaModel:
+             self.model_pipeline = PatchTSTPipeline.from_pretrained(
+                 mode="predict",
+                 pretrain_path=self.config['model']['weights'],
+-                device_map="cpu",#"cuda:0",
++                device_map=self.config['model'].get('device', 'cpu'),
+                 torch_dtype=torch.float32,
+             )

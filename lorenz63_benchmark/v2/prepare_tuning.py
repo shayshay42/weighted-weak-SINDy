@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from .config import load_config
-from .contracts import METHODS
+from .contracts import CORE_METHODS
 from .data import noise_label
 from .prepare import _atomic_jsonl
 
@@ -38,7 +38,7 @@ def prepare_tuning_queues(
                 "--validation", str(split_root / "validation.npz"),
                 "--output-dir", str(project / "tuning" / "v2" / f"noise_{label}"),
                 "--output-config", str(tuned_path),
-                "--methods", *sorted(METHODS), "--model-seed", "0", "--device", "cuda",
+                "--methods", *sorted(CORE_METHODS), "--model-seed", "0", "--device", "cuda",
             ],
         })
     frozen = project / "configs" / "v2" / "lorenz63_frozen.json"

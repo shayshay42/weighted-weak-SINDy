@@ -1,0 +1,49 @@
+{
+  "schema": "lorenz63_sanitized_result_snapshot_v1",
+  "created_date": "2026-08-20",
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 2026,
+    "procedure": "paired hierarchical bootstrap"
+  },
+  "benchmark_lyapunov_exponent": 0.91343361,
+  "studies": {
+    "core": {
+      "completed_at": "2026-07-20T17:30:48.124276+00:00",
+      "status": "complete_and_accepted",
+      "source_hash": "0cc8cfc38b78b631dc1afa0631b0544a8d78281e756f1f0ca2770f50671fa818",
+      "config_hash": "8cea8718085c5d7c8d4ee1080acf904e3497835b53f5c0e5d7335186b4873d40",
+      "primary_run_count": 780,
+      "sindy_ablation_run_count": 160
+    },
+    "panda_direct": {
+      "completed_at": "2026-08-12T21:21:31.402347+00:00",
+      "status": "complete_and_accepted",
+      "source_hash": "0ee9d53c19fa337c735767726cc8337129c047624a0166fb4758a3bdd3c6b804",
+      "config_hash": "d9c4d25c1525df829b99c5a9edf7968ec23e914ae442073080be6684e066a128",
+      "run_count": 45
+    },
+    "context_matched": {
+      "completed_at": "2026-08-13T03:18:24.660367+00:00",
+      "status": "complete",
+      "source_hash": "3d8ee70cfd5fe03122b0a1229424d97face0c9170a1010e40a71f26d6310fd41",
+      "config_hash": "2340baf5a90947081e9af90eefa87ae53be20e7faa6939a6d6ea0aec1ed0eaf4",
+      "run_count": 15,
+      "comparison_scope": "target_observation_matched_unequal_priors"
+    },
+    "few_shot": {
+      "completed_at": "2026-08-13T04:26:52.144022+00:00",
+      "status": "complete",
+      "source_hash": "caaf5be9b33d902ef8c3aeeae02ff99928604790f670403ac6eb522da1685a5b",
+      "config_hash": "5e91d812e6742c10ce7c21174ba42dc5fa537496e96d9edc5452dbc3ad67ccf8",
+      "run_count": 50,
+      "comparison_scope": "matched_target_observations_unequal_priors"
+    }
+  },
+  "panda": {
+    "code_revision": "c229e7c8c49cbe294458c44160248bb17856a715",
+    "model_id": "GilpinLab/panda",
+    "model_revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76"
+  },
+  "privacy": "Hostnames, user paths, executable prefixes, raw manifests, and licensed weights are excluded."
+}

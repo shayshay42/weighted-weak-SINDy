@@ -1,0 +1,80 @@
+{
+  "schema": "lorenz63-survival-extension-public-snapshot-v2",
+  "status": "complete",
+  "completed_at": "2026-08-21T18:41:49.903516+00:00",
+  "panel_noise_levels": [0.001, 0.01, 0.05],
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 2026
+  },
+  "integral_matching": {
+    "quadrature": "cumulative_trapezoid",
+    "pooled_across_trajectories": true,
+    "zero_time_row_omitted": true,
+    "parameter_bounds": {
+      "sigma": [0.0, 50.0],
+      "rho": [0.0, 100.0],
+      "beta": [0.0, 20.0]
+    },
+    "data_seeds": [1, 2, 3, 4, 5],
+    "model_seeds": [0, 1, 2],
+    "run_count": 60
+  },
+  "pretrained_reference_protocol": {
+    "context_steps": 512,
+    "context_noise": 0.0,
+    "benchmark_fitting_performed": false,
+    "repeated_across_training_noise_panels": true,
+    "target_model_seeds_in_plot": [0, 1, 2]
+  },
+  "panda": {
+    "model_id": "GilpinLab/panda",
+    "model_revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "source_revision": "c229e7c8c49cbe294458c44160248bb17856a715",
+    "source_run_count": 15,
+    "model_license": "CC-BY-NC-4.0"
+  },
+  "chronos": {
+    "model_id": "amazon/chronos-t5-small",
+    "model_revision": "a971ba21945c4f1796b17a91fe69214b5f4ad472",
+    "adapter_revision": "721a53459156b7264e24787f7a8fc75a1c5d6d0f",
+    "prediction_block_steps": 64,
+    "multivariate_policy": "independent_channels",
+    "source_run_count": 5,
+    "model_license": "Apache-2.0",
+    "acceptance_status": "passed"
+  },
+  "combined_rows": {
+    "runs": 720,
+    "trajectories": 92160
+  },
+  "input_sha256": {
+    "core_run_metrics": "dfffd2d42b8c04547f898211c8deb2f5b12b900e3d270a8e55fa344f012f8d93",
+    "core_trajectory_metrics": "af5804399565a0b6889b91c7c700c4a2f07fdc5a7d6ed4a1abe430c6090e0ddc",
+    "integral_run_metrics": "f417fa9162fa01e3779c6c2a618f22fc0cb22b75b36ef180136ed432c542e505",
+    "integral_trajectory_metrics": "0718d91c649d74874ae3c9e2a9921ecf82fc607a002a1d138382f4c7d1455abf",
+    "panda_run_metrics": "f8206ea0da6a7b543f9aba0a75e4767629cb2d7bfc2a489f28b7f34e20279a29",
+    "panda_trajectory_metrics": "7e1b0aa26f3af1f482063dd9f53da05d97255e91c21dcf188b7c91ccd9bd9e88",
+    "chronos_run_metrics": "d08ce581e617b962e6514a96c06ae2cdf43c86809c4a4c8914ccb47e630adb98",
+    "chronos_trajectory_metrics": "03898ba42f33bc4c7318baf04c960eeef8e2432dbccbc0b30d5cc8749e33b276",
+    "combined_run_metrics": "e777302547f9e3042fe232c467392b33d5a45274b4084d90e9cd5ffb1350534c",
+    "combined_trajectory_metrics": "f321cf56174836f7d6a6c676920d93a510ed2111273212e3cf408568707bd7b3"
+  },
+  "artifact_sha256": {
+    "forecast_survival__all_tracks__noisy_levels.png": "7265920daaa5e8849ca0de68f5b8977d6ba97436eb9b22700d1758ea3151db5b",
+    "forecast_survival__all_tracks__noisy_levels.pdf": "94ded9d7cb179b16481be2b3faee6d2d588cfe0fb49907e315d47014c6b80bf0"
+  },
+  "figure_layout": {
+    "updated_at": "2026-09-29",
+    "dimensions": [4222, 1623],
+    "figure_title": false,
+    "floating_annotation": false,
+    "legend": "one boxed block below the panels, partitioned into four information-track columns with line-style headers and all 16 method entries"
+  },
+  "validation": {
+    "chronos_run_checks": "passed",
+    "local_tests": "117 passed",
+    "fixed_reference_provenance": "passed",
+    "duplicate_trajectory_cells": 0
+  }
+}

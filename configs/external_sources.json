@@ -1,0 +1,66 @@
+{
+  "schema": "lorenz63_external_sources_v1",
+  "verified_date": "2026-08-20",
+  "benchmark_repository": {
+    "url": "https://github.com/shayshay42/weighted-weak-SINDy.git",
+    "branch": "agent/add-panda-lorenz-benchmark",
+    "empirical_baseline_commit": "bb98adf3877b58c0f79303ca5874433e178abe1b"
+  },
+  "panda": {
+    "paper": "https://arxiv.org/abs/2505.13755",
+    "code_url": "https://github.com/abao1999/panda.git",
+    "code_commit": "c229e7c8c49cbe294458c44160248bb17856a715",
+    "code_license": "MIT",
+    "model_id": "GilpinLab/panda",
+    "model_revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "model_license": "CC-BY-NC-4.0",
+    "heldout_parameter_file": "assets/params_test_zeroshot/filtered_params_dict.json",
+    "heldout_parameter_file_approx_mb": 10
+  },
+  "ctf4science": {
+    "paper": "https://papers.nips.cc/paper_files/paper/2025/file/f908bc294862a555413fbe43ff08933f-Paper-Datasets_and_Benchmarks_Track.pdf",
+    "paper_arxiv_v4": "https://arxiv.org/abs/2510.23166v4",
+    "documentation": "https://ctf-for-science.github.io/ctf4science/",
+    "code_url": "https://github.com/CTF-for-Science/ctf4science.git",
+    "code_commit": "36043739892a8cd081941e9c6a57638369750722",
+    "code_license": "MIT",
+    "sindy_submodule_commit": "3a38db4dff9e80ad675915537d1134514a9d5c34",
+    "panda_submodule_commit": "6371e269633523d07e2713aa84be7a846293b988",
+    "chronos_submodule_commit": "721a53459156b7264e24787f7a8fc75a1c5d6d0f",
+    "moirai_submodule_commit": "646893a71e533a50cf9c0c3ee26ede95d8cd786e",
+    "sundial_submodule_commit": "09516bbc6e887382f48d51e8d210c9792ba5797a",
+    "data_osf": "https://osf.io/6rzhm/",
+    "data_doi": "10.17605/OSF.IO/6RZHM",
+    "lorenz_kaggle": "https://www.kaggle.com/datasets/dynamics-ai/ctf4science-lorenz-official-ds",
+    "lorenz_delta_t": 0.05,
+    "lorenz_pair_count": 9
+  },
+  "panda_datasets": [
+    {
+      "id": "GilpinLab/skew40",
+      "url": "https://huggingface.co/datasets/GilpinLab/skew40",
+      "role": "original Panda training distribution; secondary exposed-data study",
+      "license": "CC-BY-NC-4.0",
+      "rows": 29229,
+      "total_file_size_gb": 3.04,
+      "trajectory_shape": [3, 4096],
+      "time_description": "40 Fourier periods"
+    },
+    {
+      "id": "GilpinLab/skew-mixedp-ic16",
+      "url": "https://huggingface.co/datasets/GilpinLab/skew-mixedp-ic16",
+      "role": "optional scale-up dataset with 16 initial conditions per parameter perturbation",
+      "license": "CC-BY-NC-4.0",
+      "total_file_size_gb": 30.9
+    },
+    {
+      "id": "GilpinLab/scalinglaw",
+      "url": "https://huggingface.co/datasets/GilpinLab/scalinglaw",
+      "role": "optional Panda scaling-law distribution",
+      "license": "CC-BY-NC-4.0",
+      "estimated_rows": 103273,
+      "total_file_size_gb": 14.1,
+      "trajectory_shape": [3, 4096]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "data": {
+    "noise_levels": [0.0]
+  },
+  "panda": {
+    "model_id": "GilpinLab/panda",
+    "model_revision": "92462c82900f826b7ebbd32d81294dd16ccb8c76",
+    "source_repository": "https://github.com/abao1999/panda",
+    "source_revision": "c229e7c8c49cbe294458c44160248bb17856a715",
+    "paper_url": "https://arxiv.org/abs/2505.13755v3",
+    "code_license": "MIT",
+    "model_license": "CC-BY-NC-4.0",
+    "context_length": 512,
+    "prediction_length": 128,
+    "batch_size": 16,
+    "dtype": "float32",
+    "sliding_context": true,
+    "inference_seed": 99,
+    "pretraining_overlap": {
+      "founder_pool_contains_lorenz": true,
+      "canonical_lorenz_listed_in_released_zero_shot_split": false,
+      "canonical_lorenz_holdout_status": "not established by released split metadata",
+      "interpretation": "Pretrained Lorenz-exposed sequence forecaster; not state-only dynamics learning."
+    }
+  },
+  "evaluation": {
+    "forecast_context_steps": 512
+  },
+  "method_overrides": {
+    "0": {
+      "sindy_weak": {
+        "sindy": {
+          "degree": 2,
+          "ridge": 1e-08,
+          "threshold": 0.0
+        }
+      },
+      "panda_zero_shot": {}
+    }
+  },
+  "plot_order": {
+    "state_only_dynamics": [
+      "sindy_weak_weighted",
+      "sindy_weak"
+    ],
+    "pretrained_sequence_forecasting": [
+      "panda_zero_shot"
+    ]
+  },
+  "aggregation": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 2026,
+    "require_complete_matrix": true,
+    "require_complete_ablation": false
+  },
+  "final": {
+    "data_seeds": [1, 2, 3, 4, 5],
+    "model_seeds": [0, 1, 2],
+    "methods": [
+      "sindy_weak",
+      "sindy_weak_weighted",
+      "panda_zero_shot"
+    ]
+  }
+}

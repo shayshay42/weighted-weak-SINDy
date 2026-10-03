@@ -1,0 +1,134 @@
+{
+  "checks": [
+    {
+      "detail": "complete",
+      "name": "dataset_seed_1_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_1_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_1_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_2_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_2_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_2_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_3_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_3_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_3_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_4_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_4_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_4_hashes",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "dataset_seed_5_complete",
+      "passed": true
+    },
+    {
+      "detail": "lambda_max=0.91343361",
+      "name": "dataset_seed_5_lyapunov",
+      "passed": true
+    },
+    {
+      "detail": "files=6",
+      "name": "dataset_seed_5_hashes",
+      "passed": true
+    },
+    {
+      "detail": "runs=45",
+      "name": "complete_run_matrix",
+      "passed": true
+    },
+    {
+      "detail": "skipped: ablation not configured",
+      "name": "complete_sindy_ablation",
+      "passed": true
+    },
+    {
+      "detail": "unique=45, rows=45",
+      "name": "unique_run_ids",
+      "passed": true
+    },
+    {
+      "detail": "manifests=45",
+      "name": "training_artifact_hashes",
+      "passed": true
+    },
+    {
+      "detail": "manifests=45",
+      "name": "evaluation_artifact_hashes",
+      "passed": true
+    },
+    {
+      "detail": "skipped: oracle not configured",
+      "name": "oracle_reaches_valid_horizon",
+      "passed": true
+    },
+    {
+      "detail": "skipped: strong-form coefficient-recovery methods not configured",
+      "name": "clean_sindy_coefficients",
+      "passed": true
+    },
+    {
+      "detail": "skipped: AD methods not configured",
+      "name": "clean_ad_parameters",
+      "passed": true
+    },
+    {
+      "detail": "unstable_nonoracle_runs=0",
+      "name": "oracle_predictions_finite",
+      "passed": true
+    },
+    {
+      "detail": "complete",
+      "name": "aggregate_complete",
+      "passed": true
+    }
+  ],
+  "completed_at": "2026-08-12T21:21:33.076447+00:00",
+  "note": "Seeded reproducibility is enforced by tests/v2/test_reproducibility.py.",
+  "schema": "lorenz63-acceptance-report-v2",
+  "source_hash": "0ee9d53c19fa337c735767726cc8337129c047624a0166fb4758a3bdd3c6b804",
+  "status": "passed"
+}

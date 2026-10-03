@@ -1,0 +1,26 @@
+{
+  "schema": "lorenz63-benchmark-v2",
+  "data": {
+    "noise_levels": [0.0, 0.001, 0.01, 0.05]
+  },
+  "integral_matching": {
+    "quadrature": "cumulative_trapezoid",
+    "minimum_denominator": 1e-12,
+    "parameter_bounds": {
+      "sigma": [0.0, 50.0],
+      "rho": [0.0, 100.0],
+      "beta": [0.0, 20.0]
+    }
+  },
+  "aggregation": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 2026,
+    "require_complete_matrix": true,
+    "require_complete_ablation": false
+  },
+  "final": {
+    "data_seeds": [1, 2, 3, 4, 5],
+    "model_seeds": [0, 1, 2],
+    "methods": ["lorenz_integral"]
+  }
+}
